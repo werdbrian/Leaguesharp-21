@@ -27,7 +27,6 @@ namespace Diana
           TargetSelector.AddToMenu(targetSelectorMenu);
           _config.AddSubMenu(targetSelectorMenu);
           _config.AddToMainMenu();
-          Orbwalking.AfterAttack += Orbwalking_AfterAttack;
           Obj_AI_Base.OnProcessSpellCast += oncast;
           Game.OnUpdate += Game_OnUpdate;
         }
@@ -49,6 +48,14 @@ namespace Diana
                         {
                           _q.Cast(QPred.CastPosition);
                         }
+                    }
+                  if (_w.IsReady() && target.IsValidTarget(_w.Range))
+                    {
+                      _w.Cast();
+                    }
+                  if (_e.IsReady() && target.IsValidTarget(_e.Range))
+                    {
+                      _e.Cast();
                     }
                   if (target.HasBuff("dianamoonlight"))
                     {
@@ -72,23 +79,5 @@ namespace Diana
               Utility.DelayAction.Add(450, Orbwalking.ResetAutoAttackTimer);
             }
         }
-        private static void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
-          {
-            var ta = TargetSelector.GetTarget(400, TargetSelector.DamageType.Magical);
-            if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
-              {
-                if (ta != null)
-                  {
-                    if (_e.IsReady() && ta.IsValidTarget(_e.Range))
-                      {
-                        _e.Cast();
-                      }
-                    if (!_e.IsReady() && _w.IsReady() && ta.IsValidTarget(_w.Range))
-                      {
-                        _w.Cast();
-                      }
-                  }
-              }
-          }
     }
 }
