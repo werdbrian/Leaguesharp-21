@@ -104,22 +104,22 @@ namespace Diana
                 {
                   if (target.IsValidTarget())
                     {
-                      if (_w.IsReady)
+                      if (_w.IsReady())
                         {
                           if ((ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
                             {
-                              _r.CastOnUnit(tr);
+                              _r.CastOnUnit(target);
                               if (!_r.IsReady())
                                 {
                                   _w.Cast();
                                 }
                             }
                         }
-                      if (!_w.IsReady)
+                      if (!_w.IsReady())
                         {
                           if (ObjectManager.Player.GetSpellDamage(target, SpellSlot.R) > target.Health)
                             {
-                              _r.CastOnUnit(tr);
+                              _r.CastOnUnit(target);
                             }
                         }
                     }
@@ -128,7 +128,7 @@ namespace Diana
                 {
                   if (target.IsValidTarget())
                     {
-                      if (_w.IsReady)
+                      if (_w.IsReady())
                         {
                           if (_q.IsReady())
                             {
@@ -161,7 +161,7 @@ namespace Diana
                                 }
                             }
                         }
-                      if (!_w.IsReady)
+                      if (!_w.IsReady())
                         {
                           if (_q.IsReady())
                             {
