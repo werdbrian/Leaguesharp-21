@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 namespace Diana
@@ -27,17 +28,21 @@ namespace Diana
           TargetSelector.AddToMenu(targetSelectorMenu);
           _config.AddSubMenu(targetSelectorMenu);
           _config.AddItem(new MenuItem("ec", "E in combo").SetValue(true));
-          _config.AddItem(new MenuItem("q", "Q autokill").SetValue(true));
-          _config.AddItem(new MenuItem("r", "R autokill").SetValue(true));
-          _config.AddItem(new MenuItem("kill", "autokill only if <= x enemy in 2000 range").SetValue(new Slider(1, 5, 0)));
+          _config.SubMenu("autokill").AddItem(new MenuItem("q", "Q autokill").SetValue(true));
+          _config.SubMenu("autokill").AddItem(new MenuItem("r", "R autokill").SetValue(true));
+          _config.SubMenu("autokill").AddItem(new MenuItem("kill", "autokill only if <= x enemys in 1600 range").SetValue(new Slider(5, 5, 0)));
+          foreach (var hero in HeroManager.Enemies)
+            {
+              _config.SubMenu("autokill").SubMenu("autokill champion select").AddItem(new MenuItem("auto" + hero.ChampionName, hero.ChampionName).SetValue(false));
+            }
           _config.AddToMainMenu();
           Obj_AI_Base.OnProcessSpellCast += oncast;
           Game.OnUpdate += Game_OnUpdate;
         }
       private static void Game_OnUpdate(EventArgs args)
         {
-          var target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Magical);
-          if (target != null && ObjectManager.Player.CountEnemiesInRange(2000) <= _config.Item("kill").GetValue<Slider>().Value)
+          var target = HeroManager.Enemies.Where(hero => hero.IsValidTarget(1200)).FirstOrDefault(hero => _config.Item("auto" + hero.ChampionName).GetValue<bool>());
+          if (target != null && ObjectManager.Player.CountEnemiesInRange(1600) <= _config.Item("kill").GetValue<Slider>().Value)
             {
               if (_config.Item("q").GetValue<bool>() && !_config.Item("r").GetValue<bool>() && _q.IsReady())
                 {
@@ -156,29 +161,30 @@ namespace Diana
             }
           if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
             {
-              if (target != null)
+              var tt = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Magical);
+              if (tt != null)
                 {
-                  if (_q.IsReady() && target.IsValidTarget(_q.Range))
+                  if (_q.IsReady() && tt.IsValidTarget(_q.Range))
                     {
-                      var QPred = _q.GetPrediction(target);
+                      var QPred = _q.GetPrediction(tt);
                       if (QPred.Hitchance >= HitChance.High)
                         {
                           _q.Cast(QPred.CastPosition);
                         }
                     }
-                  if (_w.IsReady() && target.IsValidTarget(_w.Range))
+                  if (_w.IsReady() && tt.IsValidTarget(_w.Range))
                     {
                       _w.Cast();
                     }
-                  if (_config.Item("ec").GetValue<bool>() && _e.IsReady() && target.IsValidTarget(_e.Range))
+                  if (_config.Item("ec").GetValue<bool>() && _e.IsReady() && tt.IsValidTarget(_e.Range))
                     {
                       _e.Cast();
                     }
-                  if (target.HasBuff("dianamoonlight"))
+                  if (tt.HasBuff("dianamoonlight"))
                     {
-                      if (_r.IsReady() && target.IsValidTarget(_r.Range))
+                      if (_r.IsReady() && tt.IsValidTarget(_r.Range))
                         {
-                          _r.CastOnUnit(target);
+                          _r.CastOnUnit(tt);
                         }
                     }
                 }
