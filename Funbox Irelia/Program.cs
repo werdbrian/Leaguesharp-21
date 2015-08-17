@@ -21,7 +21,6 @@ namespace Irelia
           _e = new Spell(SpellSlot.E, 425);
           _r = new Spell(SpellSlot.R, 1000);
           _r.SetSkillshot(0.25f, 70, 1200, false, SkillshotType.SkillshotLine);
-          _r.MinHitChance = HitChance.Medium;
           _config = new Menu("Irelia", "Irelia", true);
           _orbwalker = new Orbwalking.Orbwalker(_config.SubMenu("Orbwalking"));
           var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
@@ -115,7 +114,11 @@ namespace Irelia
                     }
                   else if (_r.IsReady() && target.IsValidTarget(_r.Range))
                     {
-                      _r.Cast(target);
+                      var RPred = _r.GetPrediction(target);
+                      if (RPred.Hitchance >= HitChance.High)
+                        {
+                          _r.Cast(RPred.CastPosition);
+                        }
                     }
                   if (target.IsValidTarget(500))
                     {
