@@ -21,7 +21,7 @@ namespace Diana
           _w = new Spell(SpellSlot.W, 200);
           _e = new Spell(SpellSlot.E, 350);
           _r = new Spell(SpellSlot.R, 825);
-          _q.SetSkillshot(0.35f, 200f, 1800, false, SkillshotType.SkillshotCircle);
+          _q.SetSkillshot(0.25f, 70, 1200, false, SkillshotType.SkillshotCircle);
           _config = new Menu("Diana", "Diana", true);
           _orbwalker = new Orbwalking.Orbwalker(_config.SubMenu("Orbwalking"));
           var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
