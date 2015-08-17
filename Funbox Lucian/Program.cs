@@ -8,10 +8,7 @@ namespace Lucian
       {
         private static Menu _config;
         private static Orbwalking.Orbwalker _orbwalker;
-        private static Spell _q;
-        private static Spell _q2;
-        private static Spell _w;
-        private static Spell _e;
+        private static Spell _q, _q2, _w;
         private static string[] select = {"Ashe", "Caitlyn", "Corki", "Draven", "Ezreal", "Graves", "Jinx", "Kalista", "KogMaw", "Lucian", "MissFortune","Quinn","Sivir","Teemo","Tristana","TwistedFate","Twitch","Urgot","Varus","Vayne"};
         private static void Main(string[] args)
           {
@@ -24,10 +21,8 @@ namespace Lucian
             _q = new Spell(SpellSlot.Q, 675);
             _q2 = new Spell(SpellSlot.Q, 1200);
             _w = new Spell(SpellSlot.W, 1000);
-            _e = new Spell(SpellSlot.E, 425);
             _q2.SetSkillshot(0.25f, 70, 3000, false, SkillshotType.SkillshotLine);
             _w.SetSkillshot(0.25f, 70, 1500, false, SkillshotType.SkillshotLine);
-            _w.MinHitChance = HitChance.Low;
             _config = new Menu("Lucian", "Lucian", true);
             _orbwalker = new Orbwalking.Orbwalker(_config.SubMenu("Orbwalking"));
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
@@ -45,33 +40,20 @@ namespace Lucian
           }
         private static void Game_OnUpdate(EventArgs args)
           {
-            var qtarget = TargetSelector.GetTarget(_q.Range, TargetSelector.DamageType.Physical);
-            if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
-              {
-                if (!ObjectManager.Player.HasBuff("lucianpassivebuff"))
-                  {
-                    if (_q.IsReady())
-                      {
-                        _q.CastOnUnit(qtarget);
-                      }
-                  }
-                if (qtarget.IsValidTarget(550))
-                  {
-                    Items.UseItem(3144, qtarget);
-                    Items.UseItem(3153, qtarget);
-                  }
-              }
             var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range, MinionTypes.All, MinionTeam.NotAlly);
             var targetqe = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).FirstOrDefault(hero => _config.Item("auto" + hero.ChampionName).GetValue<bool>());
             if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit)
               {
-                if ((ObjectManager.Player.Mana/ObjectManager.Player.MaxMana)*100 > _config.Item("manah").GetValue<Slider>().Value)
+                if (targetqe != null)
                   {
-                    foreach (var minion in minions)
+                    if ((ObjectManager.Player.Mana/ObjectManager.Player.MaxMana)*100 > _config.Item("manah").GetValue<Slider>().Value)
                       {
-                        if (_q.IsReady() && _q2.WillHit(targetqe, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                        foreach (var minion in minions)
                           {
-                            _q2.CastOnUnit(minion);
+                            if (_q.IsReady() && _q2.WillHit(targetqe, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                              {
+                                _q2.CastOnUnit(minion);
+                              }
                           }
                       }
                   }
@@ -79,17 +61,27 @@ namespace Lucian
           }
         private static void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
           {
-            var wtarget = TargetSelector.GetTarget(_w.Range, TargetSelector.DamageType.Magical);
+            var ta = TargetSelector.GetTarget(_w.Range, TargetSelector.DamageType.Magical);
             if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
               {
-                if (!ObjectManager.Player.HasBuff("lucianpassivebuff"))
+                if (ta != null)
                   {
-                    if (!_q.IsReady())
+                    if (_q.IsReady() && ta.IsValidTarget(_q.Range))
                       {
-                        if (_w.IsReady())
+                        _q.CastOnUnit(ta);
+                      }
+                    if (!_q.IsReady() && _w.IsReady() && ta.IsValidTarget())
+                      {
+                        var WPred = _w.GetPrediction(ta);
+                        if (WPred.Hitchance >= HitChance.Low)
                           {
-                            _w.Cast(wtarget);
+                            _w.Cast(WPred.CastPosition);
                           }
+                      }
+                    if (ta.IsValidTarget(550))
+                      {
+                        Items.UseItem(3144, ta);
+                        Items.UseItem(3153, ta);
                       }
                   }
               }
