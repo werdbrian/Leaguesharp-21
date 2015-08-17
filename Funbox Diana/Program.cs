@@ -27,7 +27,7 @@ namespace Diana
           var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
           TargetSelector.AddToMenu(targetSelectorMenu);
           _config.AddSubMenu(targetSelectorMenu);
-          _config.AddItem(new MenuItem("qrr", "QR to minion R killsteal").SetValue(true));
+          _config.AddItem(new MenuItem("qrr", "QR to minion R or RW or QRW kill").SetValue(true));
           _config.AddToMainMenu();
           Obj_AI_Base.OnProcessSpellCast += oncast;
           Game.OnUpdate += Game_OnUpdate;
@@ -40,9 +40,9 @@ namespace Diana
             }
           if (_config.Item("qrr").GetValue<bool>())
             {
-              QRkillsteal();
-              QRRkillsteal();
-              QRRWkillsteal();
+              QRkill();
+              QRRkill();
+              QRRWkill();
             }
           var target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Magical);
           if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
@@ -87,7 +87,7 @@ namespace Diana
               Utility.DelayAction.Add(450, Orbwalking.ResetAutoAttackTimer);
             }
         }
-      private static void QRkillsteal()
+      private static void QRkill()
         {
           var tr = TargetSelector.GetTarget(900, TargetSelector.DamageType.Magical);
           if (_q.IsReady() && _w.IsReady() && _r.IsReady())
@@ -128,7 +128,7 @@ namespace Diana
                 }
             }
         }        
-      private static void QRRkillsteal()
+      private static void QRRkill()
         {
           if (_q.IsReady() && _r.IsReady())
             {
@@ -153,7 +153,7 @@ namespace Diana
                 }
             }
         }
-      private static void QRRWkillsteal()
+      private static void QRRWkill()
         {
           if (_q.IsReady() && _w.IsReady() && _r.IsReady())
             {
