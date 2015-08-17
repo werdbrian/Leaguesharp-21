@@ -27,6 +27,7 @@ namespace Diana
           var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
           TargetSelector.AddToMenu(targetSelectorMenu);
           _config.AddSubMenu(targetSelectorMenu);
+          _config.AddItem(new MenuItem("ec", "E in combo").SetValue(true));
           _config.AddItem(new MenuItem("qrr", "QR to minion R or RW or QRW kill").SetValue(true));
           _config.AddToMainMenu();
           Obj_AI_Base.OnProcessSpellCast += oncast;
@@ -61,7 +62,7 @@ namespace Diana
                     {
                       _w.Cast();
                     }
-                  if (_e.IsReady() && target.IsValidTarget(_e.Range))
+                  if (_config.Item("ec").GetValue<bool>() && _e.IsReady() && target.IsValidTarget(_e.Range))
                     {
                       _e.Cast();
                     }
