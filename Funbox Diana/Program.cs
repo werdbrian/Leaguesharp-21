@@ -29,6 +29,7 @@ namespace Diana
           _config.AddItem(new MenuItem("ec", "E in combo").SetValue(true));
           _config.AddItem(new MenuItem("q", "Q autokill").SetValue(true));
           _config.AddItem(new MenuItem("r", "R autokill").SetValue(true));
+          _config.AddItem(new MenuItem("kill", "autokill only if x enemy in 2000 range").SetValue(new Slider(1, 5, 0)));
           _config.AddToMainMenu();
           Obj_AI_Base.OnProcessSpellCast += oncast;
           Game.OnUpdate += Game_OnUpdate;
@@ -36,7 +37,7 @@ namespace Diana
       private static void Game_OnUpdate(EventArgs args)
         {
           var target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Magical);
-          if (target != null)
+          if (target != null && ObjectManager.Player.CountEnemiesInRange(2000) <= _config.Item("kill").GetValue<Slider>().Value)
             {
               if (_config.Item("q").GetValue<bool>() && !_config.Item("r").GetValue<bool>() && _q.IsReady())
                 {
