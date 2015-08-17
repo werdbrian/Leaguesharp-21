@@ -27,23 +27,19 @@ namespace Diana
           var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
           TargetSelector.AddToMenu(targetSelectorMenu);
           _config.AddSubMenu(targetSelectorMenu);
-          _config.AddItem(new MenuItem("ec", "E in combo").SetValue(false));
-          _config.AddItem(new MenuItem("qrr", "QR to minion R or RW or QRW kill").SetValue(true));
+          _config.AddItem(new MenuItem("ec", "E in combo").SetValue(true));
+          _config.AddItem(new MenuItem("q", "Q autokill").SetValue(true));
+          _config.AddItem(new MenuItem("r", "R autokill").SetValue(true));
           _config.AddToMainMenu();
           Obj_AI_Base.OnProcessSpellCast += oncast;
           Game.OnUpdate += Game_OnUpdate;
         }
       private static void Game_OnUpdate(EventArgs args)
         {
+          kill();
           if (_r.Level <= 2)
             {
               ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.R);
-            }
-          if (_config.Item("qrr").GetValue<bool>())
-            {
-              QRkill();
-              QRRkill();
-              QRRWkill();
             }
           var target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Magical);
           if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
@@ -88,111 +84,82 @@ namespace Diana
               Utility.DelayAction.Add(450, Orbwalking.ResetAutoAttackTimer);
             }
         }
-      private static void QRkill()
+      private static void kill()
         {
-          var tr = TargetSelector.GetTarget(900, TargetSelector.DamageType.Magical);
-          if (tr != null)
+          var target = TargetSelector.GetTarget(_q.Range, TargetSelector.DamageType.Magical);
+          if (target != null)
             {
-              if (_q.IsReady() && _w.IsReady() && _r.IsReady())
+              if (_config.Item("q").GetValue<bool>() && _q.IsReady())
                 {
-                  if (tr.Distance(ObjectManager.Player) < _r.Range && (ObjectManager.Player.GetSpellDamage(tr, SpellSlot.R) + ObjectManager.Player.GetSpellDamage(tr, SpellSlot.W) + ObjectManager.Player.GetSpellDamage(tr, SpellSlot.Q)) > tr.Health)
+                  if (target.IsValidTarget() && ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) > target.Health)
                     {
-                      var QPred = _q.GetPrediction(tr);
-                      if (QPred.Hitchance >= HitChance.Medium)
-                        {
-                          _q.Cast(QPred.CastPosition);
-                        }
-                      if (tr.HasBuff("dianamoonlight"))
-                        {
-                          _r.CastOnUnit(tr);
-                        }
-                      if (!_r.IsReady() && _w.IsReady())
-                        {
-                          _w.Cast();
-                        }
-                    }
-                }
-              if (!_q.IsReady() && _w.IsReady() && _r.IsReady())
-                {
-                  if (tr.Distance(ObjectManager.Player) < _r.Range && (ObjectManager.Player.GetSpellDamage(tr, SpellSlot.R) + ObjectManager.Player.GetSpellDamage(tr, SpellSlot.W)) > tr.Health)
-                    {
-                      _r.CastOnUnit(tr);
-                    }
-                  if (!_r.IsReady())
-                    {
-                      _w.Cast();
-                    }
-                }
-              if (!_q.IsReady() && !_w.IsReady() && _r.IsReady())
-                {
-                  if (tr.Distance(ObjectManager.Player) < _r.Range && ObjectManager.Player.GetSpellDamage(tr, SpellSlot.R) > tr.Health)
-                    {
-                      _r.CastOnUnit(tr);
-                    }
-                }
-              if (_q.IsReady() && !_r.IsReady())
-                {
-                  if (tr.Distance(ObjectManager.Player) < _q.Range && ObjectManager.Player.GetSpellDamage(tr, SpellSlot.Q) > tr.Health)
-                    {
-                      var QPred = _q.GetPrediction(tr);
-                      if (QPred.Hitchance >= HitChance.Medium)
+                      var QPred = _q.GetPrediction(target);
+                      if (QPred.Hitchance >= HitChance.High)
                         {
                           _q.Cast(QPred.CastPosition);
                         }
                     }
                 }
-            }
-        }        
-      private static void QRRkill()
-        {
-          var tr = TargetSelector.GetTarget(1600, TargetSelector.DamageType.Magical);
-          if (tr != null)
-            {
-              if (_q.IsReady() && _r.IsReady())
+              if (!_config.Item("q").GetValue<bool>() && _config.Item("r").GetValue<bool>() && _r.IsReady())
                 {
-                  if (tr.Distance(ObjectManager.Player) > 1100 && (ObjectManager.Player.GetSpellDamage(tr, SpellSlot.R)) > tr.Health)
+                  if (target.IsValidTarget())
                     {
-                      var minionQR = ObjectManager.Get<Obj_AI_Minion>()
-                        .Where(x => x.IsValidTarget())
-                        .FirstOrDefault(x => x.Distance(TargetSelector.GetTarget(_r.Range * 5, TargetSelector.DamageType.Magical)) < _r.Range);
-                      if (minionQR != null)
+                      if (_w.IsReady)
                         {
-                          var QPred = _q.GetPrediction(minionQR);
-                          if (QPred.Hitchance >= HitChance.Medium)
+                          if ((ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
                             {
-                              _q.Cast(QPred.CastPosition);
+                              _r.CastOnUnit(tr);
+                              if (!_r.IsReady())
+                                {
+                                  _w.Cast();
+                                }
                             }
-                          if (minionQR.HasBuff("dianamoonlight"))
+                        }
+                      if (!_w.IsReady)
+                        {
+                          if (ObjectManager.Player.GetSpellDamage(target, SpellSlot.R) > target.Health)
                             {
-                              _r.CastOnUnit(minionQR);
+                              _r.CastOnUnit(tr);
                             }
                         }
                     }
                 }
-            }
-        }
-      private static void QRRWkill()
-        {
-          var tr = TargetSelector.GetTarget(1600, TargetSelector.DamageType.Magical);
-          if (tr != null)
-            {
-              if (_q.IsReady() && _w.IsReady() && _r.IsReady())
+              if (_config.Item("q").GetValue<bool>() && _config.Item("r").GetValue<bool>() && _r.IsReady() && _q.IsReady())
                 {
-                  if (tr.Distance(ObjectManager.Player) > 1100 && (ObjectManager.Player.GetSpellDamage(tr, SpellSlot.R) + ObjectManager.Player.GetSpellDamage(tr, SpellSlot.W)) > tr.Health)
+                  if (target.IsValidTarget())
                     {
-                      var minionQR = ObjectManager.Get<Obj_AI_Minion>()
-                        .Where(x => x.IsValidTarget())
-                        .FirstOrDefault(x => x.Distance(TargetSelector.GetTarget(_r.Range * 5, TargetSelector.DamageType.Magical)) < _r.Range);
-                      if (minionQR != null)
+                      if (_w.IsReady)
                         {
-                          var QPred = _q.GetPrediction(minionQR);
-                          if (QPred.Hitchance >= HitChance.Medium)
+                          if ((ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
                             {
-                              _q.Cast(QPred.CastPosition);
+                              var QPred = _q.GetPrediction(target);
+                              if (QPred.Hitchance >= HitChance.High)
+                                {
+                                  _q.Cast(QPred.CastPosition);
+                                }
+                              if (target.HasBuff("dianamoonlight"))
+                                {
+                                  _r.CastOnUnit(target);
+                                }
+                              if (!_r.IsReady())
+                                {
+                                  _w.Cast();
+                                }
                             }
-                          if (minionQR.HasBuff("dianamoonlight"))
+                        }
+                      if (!_w.IsReady)
+                        {
+                          if ((ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
                             {
-                              _r.CastOnUnit(minionQR);
+                              var QPred = _q.GetPrediction(target);
+                              if (QPred.Hitchance >= HitChance.High)
+                                {
+                                  _q.Cast(QPred.CastPosition);
+                                }
+                              if (target.HasBuff("dianamoonlight"))
+                                {
+                                  _r.CastOnUnit(target);
+                                }
                             }
                         }
                     }
