@@ -124,39 +124,63 @@ namespace Diana
                         }
                     }
                 }
-              if (_config.Item("q").GetValue<bool>() && _config.Item("r").GetValue<bool>() && _r.IsReady() && _q.IsReady())
+              if (_config.Item("q").GetValue<bool>() && _config.Item("r").GetValue<bool>() && _r.IsReady())
                 {
                   if (target.IsValidTarget())
                     {
                       if (_w.IsReady)
                         {
-                          if ((ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
+                          if (_q.IsReady())
                             {
-                              var QPred = _q.GetPrediction(target);
-                              if (QPred.Hitchance >= HitChance.High)
+                              if ((ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
                                 {
-                                  _q.Cast(QPred.CastPosition);
+                                  var QPred = _q.GetPrediction(target);
+                                  if (QPred.Hitchance >= HitChance.High)
+                                    {
+                                      _q.Cast(QPred.CastPosition);
+                                    }
+                                  if (target.HasBuff("dianamoonlight"))
+                                    {
+                                      _r.CastOnUnit(target);
+                                    }
+                                  if (!_r.IsReady())
+                                    {
+                                      _w.Cast();
+                                    }
                                 }
-                              if (target.HasBuff("dianamoonlight"))
+                            }
+                          if (!_q.IsReady())
+                            {
+                              if ((ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
                                 {
                                   _r.CastOnUnit(target);
-                                }
-                              if (!_r.IsReady())
-                                {
-                                  _w.Cast();
+                                  if (!_r.IsReady())
+                                    {
+                                      _w.Cast();
+                                    }
                                 }
                             }
                         }
                       if (!_w.IsReady)
                         {
-                          if ((ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
+                          if (_q.IsReady())
                             {
-                              var QPred = _q.GetPrediction(target);
-                              if (QPred.Hitchance >= HitChance.High)
+                              if ((ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
                                 {
-                                  _q.Cast(QPred.CastPosition);
+                                  var QPred = _q.GetPrediction(target);
+                                  if (QPred.Hitchance >= HitChance.High)
+                                    {
+                                      _q.Cast(QPred.CastPosition);
+                                    }
+                                  if (target.HasBuff("dianamoonlight"))
+                                    {
+                                      _r.CastOnUnit(target);
+                                    }
                                 }
-                              if (target.HasBuff("dianamoonlight"))
+                            }
+                          if (!_q.IsReady())
+                            {
+                              if (ObjectManager.Player.GetSpellDamage(target, SpellSlot.R) > target.Health)
                                 {
                                   _r.CastOnUnit(target);
                                 }
