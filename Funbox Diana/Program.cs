@@ -53,11 +53,11 @@ namespace Diana
                     }
                   if (_w.IsReady() && target.IsValidTarget(_w.Range))
                     {
-                      _w.Cast(target);
+                      _w.Cast();
                     }
                   if (_e.IsReady() && target.IsValidTarget(_e.Range))
                     {
-                      _e.Cast(target);
+                      _e.Cast();
                     }
                   if (target.HasBuff("dianamoonlight"))
                     {
