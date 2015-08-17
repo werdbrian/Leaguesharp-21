@@ -29,7 +29,7 @@ namespace Diana
           _config.AddItem(new MenuItem("ec", "E in combo").SetValue(true));
           _config.AddItem(new MenuItem("q", "Q autokill").SetValue(true));
           _config.AddItem(new MenuItem("r", "R autokill").SetValue(true));
-          _config.AddItem(new MenuItem("kill", "autokill only if x enemy in 2000 range").SetValue(new Slider(1, 5, 0)));
+          _config.AddItem(new MenuItem("kill", "autokill only if <= x enemy in 2000 range").SetValue(new Slider(1, 5, 0)));
           _config.AddToMainMenu();
           Obj_AI_Base.OnProcessSpellCast += oncast;
           Game.OnUpdate += Game_OnUpdate;
