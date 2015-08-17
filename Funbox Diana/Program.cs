@@ -27,6 +27,7 @@ namespace Diana
           TargetSelector.AddToMenu(targetSelectorMenu);
           _config.AddSubMenu(targetSelectorMenu);
           _config.AddToMainMenu();
+          Obj_AI_Base.OnProcessSpellCast += oncast;
           Game.OnUpdate += Game_OnUpdate;
         }
       private static void Game_OnUpdate(EventArgs args)
@@ -64,6 +65,18 @@ namespace Diana
                         }
                     }
                 }
+            }
+        }
+      private static void oncast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+          var spell = args.SData;
+          if (!sender.IsMe)
+            {
+              return;
+            }
+          if (spell.Name.ToLower().Contains("dianaarc") || spell.Name.ToLower().Contains("dianaorbs") || spell.Name.ToLower().Contains("dianavortex") || spell.Name.ToLower().Contains("dianateleport"))
+            {
+              Utility.DelayAction.Add(450, Orbwalking.ResetAutoAttackTimer);
             }
         }
     }
