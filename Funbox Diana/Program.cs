@@ -24,7 +24,6 @@ namespace Diana
           _e = new Spell(SpellSlot.E, 350);
           _r = new Spell(SpellSlot.R, 825);
           _q.SetSkillshot(0.25f, 70, 1200, false, SkillshotType.SkillshotCircle);
-          _q.MinHitChance = HitChance.VeryHigh;
           _config = new Menu("Diana", "Diana", true);
           _orbwalker = new Orbwalking.Orbwalker(_config.SubMenu("Orbwalking"));
           var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
@@ -44,7 +43,7 @@ namespace Diana
             {
               if (target != null)
                 {
-                  if (_q.IsReady() && IsValidTarget(_q.Range))
+                  if (_q.IsReady() && target.IsValidTarget(_q.Range))
                     {
                       var QPred = _q.GetPrediction(target);
                       if (QPred.Hitchance >= Hitchance.High)
@@ -52,17 +51,17 @@ namespace Diana
                           _q.Cast(QPred.CastPosition);
                         }
                     }
-                  if (_w.IsReady() && IsValidTarget(_w.Range))
+                  if (_w.IsReady() && target.IsValidTarget(_w.Range))
                     {
                       _w.Cast(target);
                     }
-                  if (_e.IsReady() && IsValidTarget(_e.Range))
+                  if (_e.IsReady() && target.IsValidTarget(_e.Range))
                     {
                       _e.Cast(target);
                     }
-                  if (rtarget.HasBuff("dianamoonlight"))
+                  if (target.HasBuff("dianamoonlight"))
                     {
-                      if (_r.IsReady() && IsValidTarget(_r.Range))
+                      if (_r.IsReady() && target.IsValidTarget(_r.Range))
                         {
                           _r.CastOnUnit(target);
                         }
