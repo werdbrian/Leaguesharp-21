@@ -46,7 +46,7 @@ namespace Diana
                   if (_q.IsReady() && target.IsValidTarget(_q.Range))
                     {
                       var QPred = _q.GetPrediction(target);
-                      if (QPred.Hitchance >= Hitchance.High)
+                      if (QPred.Hitchance >= HitChance.High)
                         {
                           _q.Cast(QPred.CastPosition);
                         }
