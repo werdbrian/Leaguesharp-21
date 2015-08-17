@@ -89,7 +89,7 @@ namespace Diana
           var target = TargetSelector.GetTarget(_q.Range, TargetSelector.DamageType.Magical);
           if (target != null)
             {
-              if (_config.Item("q").GetValue<bool>() && _q.IsReady())
+              if (_config.Item("q").GetValue<bool>() && !_config.Item("r").GetValue<bool>() && _q.IsReady())
                 {
                   if (target.IsValidTarget() && ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) > target.Health)
                     {
@@ -124,13 +124,24 @@ namespace Diana
                         }
                     }
                 }
-              if (_config.Item("q").GetValue<bool>() && _config.Item("r").GetValue<bool>() && _r.IsReady())
+              if (_config.Item("q").GetValue<bool>() && _config.Item("r").GetValue<bool>())
                 {
                   if (target.IsValidTarget())
                     {
+                      if (_q.IsReady() && !_r.IsReady())
+                        {
+                          if (ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) > target.Health)
+                            {
+                              var QPred = _q.GetPrediction(target);
+                              if (QPred.Hitchance >= HitChance.High)
+                                {
+                                  _q.Cast(QPred.CastPosition);
+                                }
+                            }
+                        }
                       if (_w.IsReady())
                         {
-                          if (_q.IsReady())
+                          if (_q.IsReady() && _r.IsReady())
                             {
                               if ((ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
                                 {
@@ -149,7 +160,7 @@ namespace Diana
                                     }
                                 }
                             }
-                          if (!_q.IsReady())
+                          if (!_q.IsReady() && _r.IsReady())
                             {
                               if ((ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
                                 {
@@ -163,7 +174,7 @@ namespace Diana
                         }
                       if (!_w.IsReady())
                         {
-                          if (_q.IsReady())
+                          if (_q.IsReady() && _r.IsReady())
                             {
                               if ((ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
                                 {
@@ -178,7 +189,7 @@ namespace Diana
                                     }
                                 }
                             }
-                          if (!_q.IsReady())
+                          if (!_q.IsReady() && _r.IsReady())
                             {
                               if (ObjectManager.Player.GetSpellDamage(target, SpellSlot.R) > target.Health)
                                 {
