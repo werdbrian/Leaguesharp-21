@@ -7,10 +7,7 @@ namespace Diana
     {
       private static Menu _config;
       private static Orbwalking.Orbwalker _orbwalker;
-      private static Spell _q;
-      private static Spell _w;
-      private static Spell _e;
-      private static Spell _r;
+      private static Spell _q, _w, _e, _r;
       private static void Main(string[] args)
         {
           CustomEvents.Game.OnGameLoad += Game_OnGameLoad;

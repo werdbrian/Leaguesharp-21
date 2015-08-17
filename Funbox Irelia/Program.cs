@@ -7,10 +7,7 @@ namespace Irelia
     {
       private static Menu _config;
       private static Orbwalking.Orbwalker _orbwalker;
-      private static Spell _q;
-      private static Spell _w;
-      private static Spell _e;
-      private static Spell _r;
+      private static Spell _q, _w, _e, _r;
       private static void Main(string[] args)
         {
           CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -44,7 +41,7 @@ namespace Irelia
             {
               ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.E);
             }
-          else if (_w.Level == 0 || _w.Level == 1 || _w.Level == 2)
+          else if (_w.Level <= 2)
             {
               ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.W);
             }
@@ -88,47 +85,51 @@ namespace Irelia
             {
               ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.Q);
             }
-          var qtarget = TargetSelector.GetTarget(_q.Range, TargetSelector.DamageType.Physical);
-          var etarget = TargetSelector.GetTarget(_e.Range, TargetSelector.DamageType.Magical);
-          var rtarget = TargetSelector.GetTarget(_r.Range, TargetSelector.DamageType.Physical);
-          if (_e.IsReady() && (etarget.Health/etarget.MaxHealth)*100 > (ObjectManager.Player.Health/ObjectManager.Player.MaxHealth)*100)
+          var target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Physical);
+          if (target != null)
             {
-              _e.CastOnUnit(etarget);
+              if (_e.IsReady() && target.IsValidTarget(_e.Range) && (target.Health/target.MaxHealth)*100 > (ObjectManager.Player.Health/ObjectManager.Player.MaxHealth)*100)
+                {
+                  _e.CastOnUnit(target);
+                }
             }
           if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
             {
-              if (_q.IsReady() && qtarget.Distance(ObjectManager.Player.Position) < _q.Range)
+              if (target != null)
                 {
-                  _w.Cast();
-                }
-              if (_q.IsReady() && qtarget.Distance(ObjectManager.Player.Position) > Orbwalking.GetRealAutoAttackRange(ObjectManager.Player))
-                {
-                  _q.CastOnUnit(qtarget);
-                }
-              else if (_w.IsReady())
-                {
-                  _w.Cast();
-                }
-              else if (_e.IsReady())
-                {
-                  _e.CastOnUnit(etarget);
-                }
-              else if (_r.IsReady())
-                {
-                  _r.Cast(rtarget);
-                }
-              if (qtarget.IsValidTarget(500))
-                {
-                  Items.UseItem(3144, qtarget);
-                  Items.UseItem(3146, qtarget);
-                  Items.UseItem(3153, qtarget);
-                }
-              if (qtarget.IsValidTarget(350))
-                {
-                  Items.UseItem(3074);
-                  Items.UseItem(3077);
-                  Items.UseItem(3142);
-                  Items.UseItem(3143);
+                  if (_q.IsReady() && _w.IsReady() && target.IsValidTarget(_q.Range))
+                    {
+                      _w.Cast();
+                    }
+                  if (_q.IsReady() && target.IsValidTarget(_q.Range) && target.Distance(ObjectManager.Player.Position) > Orbwalking.GetRealAutoAttackRange(ObjectManager.Player))
+                    {
+                      _q.CastOnUnit(target);
+                    }
+                  else if (_w.IsReady() && target.IsValidTarget(_w.Range))
+                    {
+                      _w.Cast();
+                    }
+                  else if (_e.IsReady() && target.IsValidTarget(_e.Range))
+                    {
+                      _e.CastOnUnit(target);
+                    }
+                  else if (_r.IsReady() && target.IsValidTarget(_r.Range))
+                    {
+                      _r.Cast(target);
+                    }
+                  if (target.IsValidTarget(500))
+                    {
+                      Items.UseItem(3144, target);
+                      Items.UseItem(3146, target);
+                      Items.UseItem(3153, target);
+                    }
+                  if (target.IsValidTarget(350))
+                    {
+                      Items.UseItem(3074);
+                      Items.UseItem(3077);
+                      Items.UseItem(3142);
+                      Items.UseItem(3143);
+                    }
                 }
             }
         }
