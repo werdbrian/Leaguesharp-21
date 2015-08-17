@@ -35,57 +35,7 @@ namespace Diana
         }
       private static void Game_OnUpdate(EventArgs args)
         {
-          kill();
-          if (_r.Level <= 2)
-            {
-              ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.R);
-            }
           var target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Magical);
-          if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
-            {
-              if (target != null)
-                {
-                  if (_q.IsReady() && target.IsValidTarget(_q.Range))
-                    {
-                      var QPred = _q.GetPrediction(target);
-                      if (QPred.Hitchance >= HitChance.High)
-                        {
-                          _q.Cast(QPred.CastPosition);
-                        }
-                    }
-                  if (_w.IsReady() && target.IsValidTarget(_w.Range))
-                    {
-                      _w.Cast();
-                    }
-                  if (_config.Item("ec").GetValue<bool>() && _e.IsReady() && target.IsValidTarget(_e.Range))
-                    {
-                      _e.Cast();
-                    }
-                  if (target.HasBuff("dianamoonlight"))
-                    {
-                      if (_r.IsReady() && target.IsValidTarget(_r.Range))
-                        {
-                          _r.CastOnUnit(target);
-                        }
-                    }
-                }
-            }
-        }
-      private static void oncast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
-        {
-          var spell = args.SData;
-          if (!sender.IsMe)
-            {
-              return;
-            }
-          if (spell.Name.ToLower().Contains("dianaarc") || spell.Name.ToLower().Contains("dianavortex") || spell.Name.ToLower().Contains("dianateleport"))
-            {
-              Utility.DelayAction.Add(450, Orbwalking.ResetAutoAttackTimer);
-            }
-        }
-      private static void kill()
-        {
-          var target = TargetSelector.GetTarget(_q.Range, TargetSelector.DamageType.Magical);
           if (target != null)
             {
               if (_config.Item("q").GetValue<bool>() && !_config.Item("r").GetValue<bool>() && _q.IsReady())
@@ -198,6 +148,51 @@ namespace Diana
                         }
                     }
                 }
+            }
+          if (_r.Level <= 2)
+            {
+              ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.R);
+            }
+          if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
+            {
+              if (target != null)
+                {
+                  if (_q.IsReady() && target.IsValidTarget(_q.Range))
+                    {
+                      var QPred = _q.GetPrediction(target);
+                      if (QPred.Hitchance >= HitChance.High)
+                        {
+                          _q.Cast(QPred.CastPosition);
+                        }
+                    }
+                  if (_w.IsReady() && target.IsValidTarget(_w.Range))
+                    {
+                      _w.Cast();
+                    }
+                  if (_config.Item("ec").GetValue<bool>() && _e.IsReady() && target.IsValidTarget(_e.Range))
+                    {
+                      _e.Cast();
+                    }
+                  if (target.HasBuff("dianamoonlight"))
+                    {
+                      if (_r.IsReady() && target.IsValidTarget(_r.Range))
+                        {
+                          _r.CastOnUnit(target);
+                        }
+                    }
+                }
+            }
+        }
+      private static void oncast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+          var spell = args.SData;
+          if (!sender.IsMe)
+            {
+              return;
+            }
+          if (spell.Name.ToLower().Contains("dianaarc") || spell.Name.ToLower().Contains("dianavortex") || spell.Name.ToLower().Contains("dianateleport"))
+            {
+              Utility.DelayAction.Add(450, Orbwalking.ResetAutoAttackTimer);
             }
         }
     }
