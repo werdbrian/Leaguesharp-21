@@ -42,7 +42,7 @@ namespace Khazix
           }
         private static void Game_OnUpdate(EventArgs args)
           {
-            var target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Physical);
+            var target = TargetSelector.GetTarget(1000, TargetSelector.DamageType.Physical);
             if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
               {
                 if (target != null)

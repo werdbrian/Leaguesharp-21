@@ -32,57 +32,9 @@ namespace Irelia
         }
       private static void Game_OnUpdate(EventArgs args)
         {
-          if (_q.Level == 0) 
-            {
-              ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.Q);
-            }
-          else if (_e.Level == 0)
-            {
-              ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.E);
-            }
-          else if (_w.Level <= 2)
-            {
-              ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.W);
-            }
-          if (_r.Level == 0)
+          if (_r.Level <= 2)
             {
               ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.R);
-            }
-          else if (_w.Level == 3)
-            {
-              ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.W);
-            }
-          else if (_e.Level == 1)
-            {
-              ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.E);
-            }
-          if (_w.Level == 4)
-            {
-              ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.W);
-            }
-          else if (_e.Level == 2)
-            {
-              ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.E);
-            }
-          else if (_r.Level == 1)
-            {
-              ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.R);
-            }
-          if ((_e.Level == 3 || _e.Level == 4) && _r.Level == 2)
-            {
-              ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.E);
-            }
-          else if (_q.Level == 1 || _q.Level == 2)
-            {
-              ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.Q);
-            }
-          else if (_r.Level == 2)
-            {
-              ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.R);
-            }
-          if (_q.Level == 3 || _q.Level == 4 && _r.Level == 3)
-            {
-              ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.Q);
             }
           var target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Physical);
           if (target != null)
