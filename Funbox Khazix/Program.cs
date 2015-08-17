@@ -42,24 +42,30 @@ namespace Khazix
           }
         private static void Game_OnUpdate(EventArgs args)
           {
-            var wtarget = TargetSelector.GetTarget(_w.Range, TargetSelector.DamageType.Magical);
-            var qtarget = TargetSelector.GetTarget(_q.Range, TargetSelector.DamageType.Physical);
+            var target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Physical);
             if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
               {
-                if (qtarget.IsValidTarget(300))
+                if (target != null)
                   {
-                    Items.UseItem(3074);
-                    Items.UseItem(3077);
-                    Items.UseItem(3142);
-                    Items.UseItem(3143);
-                  }
-                if (_w.IsReady())
-                  {
-                    _w.Cast(wtarget);
-                  }
-                if (_q.IsReady())
-                  {
-                    _q.Cast(qtarget);
+                    if (target.IsValidTarget(300))
+                      {
+                        Items.UseItem(3074);
+                        Items.UseItem(3077);
+                        Items.UseItem(3142);
+                        Items.UseItem(3143);
+                      }
+                    if (_w.IsReady() && target.IsValidTarget(_w.Range))
+                      {
+                        var WPred = _w.GetPrediction(target);
+                        if (WPred.Hitchance >= HitChance.High)
+                          {
+                            _w.Cast(WPred.CastPosition);
+                          }
+                      }
+                    if (_q.IsReady() && target.IsValidTarget(_q.Range))
+                      {
+                        _q.CastOnUnit(target);
+                      }
                   }
               }
           }
