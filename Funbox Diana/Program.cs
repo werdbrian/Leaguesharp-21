@@ -128,6 +128,17 @@ namespace Diana
                   _r.CastOnUnit(tr);
                 }
             }
+          if (_q.IsReady() && !_r.IsReady())
+            {
+              if (tr.Distance(ObjectManager.Player) < _q.Range && ObjectManager.Player.GetSpellDamage(tr, SpellSlot.Q) > tr.Health)
+                {
+                  var QPred = _q.GetPrediction(tr);
+                  if (QPred.Hitchance >= HitChance.Medium)
+                    {
+                      _q.Cast(QPred.CastPosition);
+                    }
+                }
+            }
         }        
       private static void QRRkill()
         {
