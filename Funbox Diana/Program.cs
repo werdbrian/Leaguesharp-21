@@ -30,7 +30,7 @@ namespace Diana
           _config.AddItem(new MenuItem("ec", "E in combo").SetValue(true));
           _config.SubMenu("autokill").AddItem(new MenuItem("q", "Q autokill").SetValue(true));
           _config.SubMenu("autokill").AddItem(new MenuItem("r", "R autokill").SetValue(true));
-          _config.SubMenu("autokill").AddItem(new MenuItem("kill", "autokill only if <= x enemys in 1600 range").SetValue(new Slider(5, 5, 0)));
+          _config.SubMenu("autokill").AddItem(new MenuItem("kill", "autokill only if <= x enemys in 1600 range").SetValue(new Slider(5, 5, 1)));
           foreach (var hero in HeroManager.Enemies)
             {
               _config.SubMenu("autokill").SubMenu("autokill champion select").AddItem(new MenuItem("auto" + hero.ChampionName, hero.ChampionName).SetValue(false));
