@@ -27,6 +27,7 @@ namespace Diana
           TargetSelector.AddToMenu(targetSelectorMenu);
           _config.AddSubMenu(targetSelectorMenu);
           _config.AddToMainMenu();
+          Orbwalking.AfterAttack += Orbwalking_AfterAttack;
           Obj_AI_Base.OnProcessSpellCast += oncast;
           Game.OnUpdate += Game_OnUpdate;
         }
