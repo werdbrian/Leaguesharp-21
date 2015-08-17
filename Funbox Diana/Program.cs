@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
 namespace Diana
@@ -26,6 +27,7 @@ namespace Diana
           var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
           TargetSelector.AddToMenu(targetSelectorMenu);
           _config.AddSubMenu(targetSelectorMenu);
+          _config.AddItem(new MenuItem("qrr", "QR to minion R killsteal").SetValue(true));
           _config.AddToMainMenu();
           Obj_AI_Base.OnProcessSpellCast += oncast;
           Game.OnUpdate += Game_OnUpdate;
@@ -35,6 +37,12 @@ namespace Diana
           if (_r.Level <= 2)
             {
               ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.R);
+            }
+          if (_config.Item("qrr").GetValue<bool>())
+            {
+              QRkillsteal();
+              QRRkillsteal();
+              QRRWkillsteal();
             }
           var target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Magical);
           if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
@@ -74,9 +82,100 @@ namespace Diana
             {
               return;
             }
-          if (spell.Name.ToLower().Contains("dianaarc") || spell.Name.ToLower().Contains("dianaorbs") || spell.Name.ToLower().Contains("dianavortex") || spell.Name.ToLower().Contains("dianateleport"))
+          if (spell.Name.ToLower().Contains("dianaarc") || spell.Name.ToLower().Contains("dianavortex") || spell.Name.ToLower().Contains("dianateleport"))
             {
               Utility.DelayAction.Add(450, Orbwalking.ResetAutoAttackTimer);
+            }
+        }
+      private static void QRkillsteal()
+        {
+          var tr = TargetSelector.GetTarget(900, TargetSelector.DamageType.Magical);
+          if (_q.IsReady() && _w.IsReady() && _r.IsReady())
+            {
+              if (tr.Distance(ObjectManager.Player) < _r.Range && (ObjectManager.Player.GetSpellDamage(tr, SpellSlot.R) + ObjectManager.Player.GetSpellDamage(tr, SpellSlot.W) + ObjectManager.Player.GetSpellDamage(tr, SpellSlot.Q)) > tr.Health)
+                {
+                  var QPred = _q.GetPrediction(tr);
+                  if (QPred.Hitchance >= HitChance.Medium)
+                    {
+                      _q.Cast(QPred.CastPosition);
+                    }
+                  if (tr.HasBuff("dianamoonlight"))
+                    {
+                      _r.CastOnUnit(tr);
+                    }
+                  if (!_r.IsReady() && _w.IsReady())
+                    {
+                      _w.Cast();
+                    }
+                }
+            }
+          if (!_q.IsReady() && _w.IsReady() && _r.IsReady())
+            {
+              if (tr.Distance(ObjectManager.Player) < _r.Range && (ObjectManager.Player.GetSpellDamage(tr, SpellSlot.R) + ObjectManager.Player.GetSpellDamage(tr, SpellSlot.W)) > tr.Health)
+                {
+                  _r.CastOnUnit(tr);
+                }
+              if (!_r.IsReady())
+                {
+                  _w.Cast();
+                }
+            }
+          if (!_q.IsReady() && !_w.IsReady() && _r.IsReady())
+            {
+              if (tr.Distance(ObjectManager.Player) < _r.Range && ObjectManager.Player.GetSpellDamage(tr, SpellSlot.R) > tr.Health)
+                {
+                  _r.CastOnUnit(tr);
+                }
+            }
+        }        
+      private static void QRRkillsteal()
+        {
+          if (_q.IsReady() && _r.IsReady())
+            {
+              var tr = TargetSelector.GetTarget(1600, TargetSelector.DamageType.Magical);
+              if (tr.Distance(ObjectManager.Player) > 1100 && (ObjectManager.Player.GetSpellDamage(tr, SpellSlot.R)) > tr.Health)
+                {
+                  var minionQR = ObjectManager.Get<Obj_AI_Minion>()
+                    .Where(x => x.IsValidTarget())
+                    .FirstOrDefault(x => x.Distance(TargetSelector.GetTarget(_r.Range * 5, TargetSelector.DamageType.Magical)) < _r.Range);
+                  if (minionQR != null)
+                    {
+                      var QPred = _q.GetPrediction(minionQR);
+                      if (QPred.Hitchance >= HitChance.Medium)
+                        {
+                          _q.Cast(QPred.CastPosition);
+                        }
+                      if (minionQR.HasBuff("dianamoonlight"))
+                        {
+                          _r.CastOnUnit(minionQR);
+                        }
+                    }
+                }
+            }
+        }
+      private static void QRRWkillsteal()
+        {
+          if (_q.IsReady() && _w.IsReady() && _r.IsReady())
+            {
+              var tr = TargetSelector.GetTarget(1600, TargetSelector.DamageType.Magical);
+              if (tr.Distance(ObjectManager.Player) > 1100 && (ObjectManager.Player.GetSpellDamage(tr, SpellSlot.R) + ObjectManager.Player.GetSpellDamage(tr, SpellSlot.W)) > tr.Health)
+                {
+                  var minionQR = ObjectManager.Get<Obj_AI_Minion>()
+                    .Where(x => x.IsValidTarget())
+                    .FirstOrDefault(x => x.Distance(TargetSelector.GetTarget(_r.Range * 5, TargetSelector.DamageType.Magical)) < _r.Range);
+                  if (minionQR != null)
+                    {
+                      var QPred = _q.GetPrediction(minionQR);
+                      if (QPred.Hitchance >= HitChance.Medium)
+                        {
+                          _q.Cast(QPred.CastPosition);
+                        }
+                      if (minionQR.HasBuff("dianamoonlight"))
+                        {
+                          _r.CastOnUnit(minionQR);
+                        }
+                    }
+                }
             }
         }
     }
