@@ -35,33 +35,37 @@ namespace Diana
         }
       private static void Game_OnUpdate(EventArgs args)
         {
-          if (_r.Level == 0 || _r.Level == 1 || _r.Level == 2)
+          if (_r.Level <= 2)
             {
               ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.R);
             }
-          var qtarget = TargetSelector.GetTarget(_q.Range, TargetSelector.DamageType.Magical);
-          var wtarget = TargetSelector.GetTarget(_w.Range, TargetSelector.DamageType.Magical);
-          var etarget = TargetSelector.GetTarget(_e.Range, TargetSelector.DamageType.Magical);
-          var rtarget = TargetSelector.GetTarget(_r.Range, TargetSelector.DamageType.Magical);
+          var target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Magical);
           if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
             {
-              if (_q.IsReady())
+              if (target != null)
                 {
-                  _q.Cast(qtarget);
-                }
-              if (_w.IsReady())
-                {
-                  _w.Cast(wtarget);
-                }
-              if (_e.IsReady())
-                {
-                  _e.Cast(etarget);
-                }
-              if (rtarget.HasBuff("dianamoonlight"))
-                {
-                  if (_r.IsReady())
+                  if (_q.IsReady() && IsValidTarget(_q.Range))
                     {
-                      _r.CastOnUnit(rtarget);
+                      var QPred = _q.GetPrediction(target);
+                      if (QPred.Hitchance >= Hitchance.High)
+                        {
+                          _q.Cast(QPred.CastPosition);
+                        }
+                    }
+                  if (_w.IsReady() && IsValidTarget(_w.Range))
+                    {
+                      _w.Cast(target);
+                    }
+                  if (_e.IsReady() && IsValidTarget(_e.Range))
+                    {
+                      _e.Cast(target);
+                    }
+                  if (rtarget.HasBuff("dianamoonlight"))
+                    {
+                      if (_r.IsReady() && IsValidTarget(_r.Range))
+                        {
+                          _r.CastOnUnit(target);
+                        }
                     }
                 }
             }
