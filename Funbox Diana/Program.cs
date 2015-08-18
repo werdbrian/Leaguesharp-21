@@ -31,7 +31,6 @@ namespace Diana
           _config.AddSubMenu(targetSelectorMenu);
           _config.AddItem(new MenuItem("ec", "E mode").SetValue(new StringList(new[]{"after W", "in mid jump", "E off"})));
           _config.SubMenu("autokill").AddItem(new MenuItem("autokil", "autokill").SetValue(true));
-          _config.SubMenu("autokill").AddItem(new MenuItem("autokilm", "use Misaya [wait for Q pred]").SetValue(false));
           _config.SubMenu("autokill").AddItem(new MenuItem("kill", "autokill only if <= x enemys in 1600 range").SetValue(new Slider(5, 5, 1)));
           foreach (var hero in HeroManager.Enemies)
             {
@@ -60,14 +59,7 @@ namespace Diana
                         {
                           _q2.Cast(Q2Pred.CastPosition);
                         }
-                      if (_config.SubMenu("autokill").Item("autokilm").GetValue<bool>())
-                        {
-                          if (target.HasBuff("dianamoonlight"))
-                            {
-                              _r.CastOnUnit(target);
-                            }
-                        }
-                      if (!_config.SubMenu("autokill").Item("autokilm").GetValue<bool>())
+                      if (target.HasBuff("dianamoonlight"))
                         {
                           _r.CastOnUnit(target);
                         }
@@ -88,14 +80,7 @@ namespace Diana
                         {
                           _q2.Cast(Q2Pred.CastPosition);
                         }
-                      if (_config.SubMenu("autokill").Item("autokilm").GetValue<bool>())
-                        {
-                          if (target.HasBuff("dianamoonlight"))
-                            {
-                              _r.CastOnUnit(target);
-                            }
-                        }
-                      if (!_config.SubMenu("autokill").Item("autokilm").GetValue<bool>())
+                      if (target.HasBuff("dianamoonlight"))
                         {
                           _r.CastOnUnit(target);
                         }
