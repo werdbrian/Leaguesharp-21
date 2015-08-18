@@ -18,9 +18,9 @@ namespace Lucian
           {
             if (ObjectManager.Player.ChampionName != "Lucian")
               return;
-            _q = new Spell(SpellSlot.Q, 675);
+            _q = new Spell(SpellSlot.Q, 700);
             _q2 = new Spell(SpellSlot.Q, 1200);
-            _w = new Spell(SpellSlot.W, 1000);
+            _w = new Spell(SpellSlot.W, 1050);
             _q2.SetSkillshot(0.25f, 70, 3000, false, SkillshotType.SkillshotLine);
             _w.SetSkillshot(0.25f, 70, 1500, false, SkillshotType.SkillshotLine);
             _config = new Menu("Lucian", "Lucian", true);
