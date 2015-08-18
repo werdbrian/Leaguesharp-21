@@ -65,8 +65,8 @@ namespace Lucian
               {
                 if (!_config.Item("qexk2").GetValue<bool>())
                   {
-                    var targetqk = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).Where(hero => hero.Distance(ObjectManager.Player) > _q.Range).Where(hero => ObjectManager.Player.GetSpellDamage(hero, SpellSlot.Q) >= hero.Health);
-                    if (targetqk != null)
+                    var targetqk = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range));
+                    if (targetqk != null && targetqk.Distance(ObjectManager.Player) > _q.Range && ObjectManager.Player.GetSpellDamage(targetqk, SpellSlot.Q) >= targetqk.Health)
                       {
                         foreach (var minion in minions)
                           {
