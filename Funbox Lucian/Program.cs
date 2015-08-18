@@ -47,6 +47,8 @@ namespace Lucian
             var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range, MinionTypes.All, MinionTeam.NotAlly);
             var tex = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Physical);
             var targetqe = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).FirstOrDefault(hero => _config.Item("auto" + hero.ChampionName).GetValue<bool>());
+            var targetqkk = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).Where(hero => hero.Distance(ObjectManager.Player) > _q.Range).FirstOrDefault(hero => _config.Item("auto" + hero.ChampionName).GetValue<bool>());
+            var targetqk = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).Where(hero => hero.Distance(ObjectManager.Player) > _q.Range).FirstOrDefault(hero => ObjectManager.Player.GetSpellDamage(hero, SpellSlot.Q) >= hero.Health);
             if (_w2.IsReady())
               {
                 foreach (var target in HeroManager.Enemies.Where(x => x.IsValidTarget(_w2.Range)))
@@ -65,7 +67,6 @@ namespace Lucian
               {
                 if (!_config.Item("qexk2").GetValue<bool>())
                   {
-                    var targetqk = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).Where(hero => hero.Distance(ObjectManager.Player) > _q.Range).FirstOrDefault(hero => ObjectManager.Player.GetSpellDamage(hero, SpellSlot.Q) >= hero.Health);
                     if (targetqk != null)
                       {
                         foreach (var minion in minions)
@@ -79,7 +80,6 @@ namespace Lucian
                   }
                 if (_config.Item("qexk2").GetValue<bool>())
                   {
-                    var targetqkk = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).Where(hero => hero.Distance(ObjectManager.Player) > _q.Range).FirstOrDefault(hero => _config.Item("auto" + hero.ChampionName).GetValue<bool>());
                     if (targetqkk != null && ObjectManager.Player.GetSpellDamage(targetqkk, SpellSlot.Q) >= targetqkk.Health)
                       {
                         foreach (var minion in minions)
@@ -152,7 +152,7 @@ namespace Lucian
           {
             var tq = TargetSelector.GetTarget(_q.Range, TargetSelector.DamageType.Physical);
             var tw = TargetSelector.GetTarget(_w.Range, TargetSelector.DamageType.Magical);
-            if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
+            if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
               {
                 if (tq != null)
                   {
