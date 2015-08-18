@@ -81,7 +81,7 @@ namespace Lucian
               {
                 if (tq != null)
                   {
-                    if (_q.IsReady() && tq.IsValidTarget())
+                    if (_q.IsReady() && tq.IsValidTarget(_q.Range))
                       {
                         _q.CastOnUnit(tq);
                       }
@@ -93,7 +93,7 @@ namespace Lucian
                   }
                 if (tw != null)
                   {
-                    if (!_q.IsReady() && _w.IsReady() && tw.IsValidTarget())
+                    if (!_q.IsReady() && _w.IsReady() && tw.IsValidTarget(_w.Range))
                       {
                         var WPred = _w.GetPrediction(tw);
                         if (WPred.Hitchance >= HitChance.Low)
