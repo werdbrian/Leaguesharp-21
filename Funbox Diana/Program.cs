@@ -8,7 +8,7 @@ namespace Diana
     {
       private static Menu _config;
       private static Orbwalking.Orbwalker _orbwalker;
-      private static Spell _q, _w, _e, _r;
+      private static Spell _q, _q2, _w, _e, _r;
       private static void Main(string[] args)
         {
           CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -18,18 +18,20 @@ namespace Diana
           if (ObjectManager.Player.ChampionName != "Diana")
             return;
           _q = new Spell(SpellSlot.Q, 830);
+          _q2 = new Spell(SpellSlot.Q, 350);
           _w = new Spell(SpellSlot.W, 200);
           _e = new Spell(SpellSlot.E, 350);
           _r = new Spell(SpellSlot.R, 825);
-          _q.SetSkillshot(0.25f, 70, 1200, false, SkillshotType.SkillshotCircle);
+          _q.SetSkillshot(0.25f, 90, 900, false, SkillshotType.SkillshotCircle);
+          _q2.SetSkillshot(0.25f, 60, 2500, false, SkillshotType.SkillshotCircle);
           _config = new Menu("Diana", "Diana", true);
           _orbwalker = new Orbwalking.Orbwalker(_config.SubMenu("Orbwalking"));
           var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
           TargetSelector.AddToMenu(targetSelectorMenu);
           _config.AddSubMenu(targetSelectorMenu);
-          _config.AddItem(new MenuItem("ec", "E in combo").SetValue(true));
-          _config.SubMenu("autokill").AddItem(new MenuItem("q", "Q autokill").SetValue(true));
-          _config.SubMenu("autokill").AddItem(new MenuItem("r", "R autokill").SetValue(true));
+          _config.AddItem(new MenuItem("ec", "E mode").SetValue(new StringList(new[]{"after W", "in mid jump", "E off"})));
+          _config.SubMenu("autokill").AddItem(new MenuItem("autokil", "autokill").SetValue(true));
+          _config.SubMenu("autokill").AddItem(new MenuItem("autokilm", "use Misaya [wait for Q pred]").SetValue(false));
           _config.SubMenu("autokill").AddItem(new MenuItem("kill", "autokill only if <= x enemys in 1600 range").SetValue(new Slider(5, 5, 1)));
           foreach (var hero in HeroManager.Enemies)
             {
@@ -44,113 +46,83 @@ namespace Diana
           var target = HeroManager.Enemies.Where(hero => hero.IsValidTarget(1200)).FirstOrDefault(hero => _config.Item("auto" + hero.ChampionName).GetValue<bool>());
           if (target != null && ObjectManager.Player.CountEnemiesInRange(1600) <= _config.Item("kill").GetValue<Slider>().Value)
             {
-              if (_config.Item("q").GetValue<bool>() && !_config.Item("r").GetValue<bool>() && _q.IsReady())
+              if (_config.SubMenu("autokill").Item("autokil").GetValue<bool>())
                 {
-                  if (target.IsValidTarget() && ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) > target.Health)
+                  if (_q.IsReady() && _w.IsReady() && _r.IsReady() && (ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
                     {
                       var QPred = _q.GetPrediction(target);
-                      if (QPred.Hitchance >= HitChance.High)
+                      var Q2Pred = _q2.GetPrediction(target);
+                      if (target.Distance(ObjectManager.Player) > _q2.Range && QPred.Hitchance >= HitChance.High)
                         {
                           _q.Cast(QPred.CastPosition);
                         }
-                    }
-                }
-              if (!_config.Item("q").GetValue<bool>() && _config.Item("r").GetValue<bool>() && _r.IsReady())
-                {
-                  if (target.IsValidTarget())
-                    {
-                      if (_w.IsReady())
+                      if (target.Distance(ObjectManager.Player) <= _q2.Range && Q2Pred.Hitchance >= HitChance.High)
                         {
-                          if ((ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
-                            {
-                              _r.CastOnUnit(target);
-                              if (!_r.IsReady())
-                                {
-                                  _w.Cast();
-                                }
-                            }
+                          _q2.Cast(Q2Pred.CastPosition);
                         }
-                      if (!_w.IsReady())
+                      if (_config.SubMenu("autokill").Item("autokilm").GetValue<bool>())
                         {
-                          if (ObjectManager.Player.GetSpellDamage(target, SpellSlot.R) > target.Health)
+                          if (target.HasBuff("dianamoonlight"))
                             {
                               _r.CastOnUnit(target);
                             }
                         }
+                      if (!_config.SubMenu("autokill").Item("autokilm").GetValue<bool>())
+                        {
+                          _r.CastOnUnit(target);
+                        }
+                      if (!_r.IsReady())
+                        {
+                          _w.Cast();
+                        }
                     }
-                }
-              if (_config.Item("q").GetValue<bool>() && _config.Item("r").GetValue<bool>())
-                {
-                  if (target.IsValidTarget())
+                  if (_q.IsReady() && !_w.IsReady() && _r.IsReady() && (ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
                     {
-                      if (_q.IsReady() && !_r.IsReady())
+                      var QPred = _q.GetPrediction(target);
+                      var Q2Pred = _q2.GetPrediction(target);
+                      if (target.Distance(ObjectManager.Player) > _q2.Range && QPred.Hitchance >= HitChance.High)
                         {
-                          if (ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) > target.Health)
+                          _q.Cast(QPred.CastPosition);
+                        }
+                      if (target.Distance(ObjectManager.Player) <= _q2.Range && Q2Pred.Hitchance >= HitChance.High)
+                        {
+                          _q2.Cast(Q2Pred.CastPosition);
+                        }
+                      if (_config.SubMenu("autokill").Item("autokilm").GetValue<bool>())
+                        {
+                          if (target.HasBuff("dianamoonlight"))
                             {
-                              var QPred = _q.GetPrediction(target);
-                              if (QPred.Hitchance >= HitChance.High)
-                                {
-                                  _q.Cast(QPred.CastPosition);
-                                }
+                              _r.CastOnUnit(target);
                             }
                         }
-                      if (_w.IsReady())
+                      if (!_config.SubMenu("autokill").Item("autokilm").GetValue<bool>())
                         {
-                          if (_q.IsReady() && _r.IsReady())
-                            {
-                              if ((ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
-                                {
-                                  var QPred = _q.GetPrediction(target);
-                                  if (QPred.Hitchance >= HitChance.High)
-                                    {
-                                      _q.Cast(QPred.CastPosition);
-                                    }
-                                  if (target.HasBuff("dianamoonlight"))
-                                    {
-                                      _r.CastOnUnit(target);
-                                    }
-                                  if (!_r.IsReady())
-                                    {
-                                      _w.Cast();
-                                    }
-                                }
-                            }
-                          if (!_q.IsReady() && _r.IsReady())
-                            {
-                              if ((ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
-                                {
-                                  _r.CastOnUnit(target);
-                                  if (!_r.IsReady())
-                                    {
-                                      _w.Cast();
-                                    }
-                                }
-                            }
+                          _r.CastOnUnit(target);
                         }
-                      if (!_w.IsReady())
+                    }
+                  if (!_q.IsReady() && _w.IsReady() && _r.IsReady() && (ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
+                    {
+                      _r.CastOnUnit(target);
+                      if (!_r.IsReady())
                         {
-                          if (_q.IsReady() && _r.IsReady())
-                            {
-                              if ((ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) + ObjectManager.Player.GetSpellDamage(target, SpellSlot.R)) > target.Health)
-                                {
-                                  var QPred = _q.GetPrediction(target);
-                                  if (QPred.Hitchance >= HitChance.High)
-                                    {
-                                      _q.Cast(QPred.CastPosition);
-                                    }
-                                  if (target.HasBuff("dianamoonlight"))
-                                    {
-                                      _r.CastOnUnit(target);
-                                    }
-                                }
-                            }
-                          if (!_q.IsReady() && _r.IsReady())
-                            {
-                              if (ObjectManager.Player.GetSpellDamage(target, SpellSlot.R) > target.Health)
-                                {
-                                  _r.CastOnUnit(target);
-                                }
-                            }
+                          _w.Cast();
+                        }
+                    }
+                  if (!_q.IsReady() && !_w.IsReady() && _r.IsReady() && ObjectManager.Player.GetSpellDamage(target, SpellSlot.R) > target.Health)
+                    {
+                      _r.CastOnUnit(target);
+                    }
+                  if (_q.IsReady() && !_r.IsReady() && ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) > target.Health)
+                    {
+                      var QPred = _q.GetPrediction(target);
+                      var Q2Pred = _q2.GetPrediction(target);
+                      if (target.Distance(ObjectManager.Player) > _q2.Range && QPred.Hitchance >= HitChance.High)
+                        {
+                          _q.Cast(QPred.CastPosition);
+                        }
+                      if (target.Distance(ObjectManager.Player) <= _q2.Range && Q2Pred.Hitchance >= HitChance.High)
+                        {
+                          _q2.Cast(Q2Pred.CastPosition);
                         }
                     }
                 }
@@ -164,22 +136,37 @@ namespace Diana
               var tt = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Magical);
               if (tt != null)
                 {
-                  if (_q.IsReady() && tt.IsValidTarget(_q.Range))
+                  var QPred = _q.GetPrediction(target);
+                  var Q2Pred = _q2.GetPrediction(target);
+                  if (target.Distance(ObjectManager.Player) > _q2.Range && QPred.Hitchance >= HitChance.High)
                     {
-                      var QPred = _q.GetPrediction(tt);
-                      if (QPred.Hitchance >= HitChance.High)
-                        {
-                          _q.Cast(QPred.CastPosition);
-                        }
+                      _q.Cast(QPred.CastPosition);
+                    }
+                  if (target.Distance(ObjectManager.Player) <= _q2.Range && Q2Pred.Hitchance >= HitChance.High)
+                    {
+                      _q2.Cast(Q2Pred.CastPosition);
                     }
                   if (_w.IsReady() && tt.IsValidTarget(_w.Range))
                     {
                       _w.Cast();
                     }
-                  if (_config.Item("ec").GetValue<bool>() && _e.IsReady() && tt.IsValidTarget(_e.Range))
+                  if (_e.IsReady() && tt.IsValidTarget(_e.Range))
                     {
-                      _e.Cast();
+                      var emode = _config.Item("ec").GetValue<StringList>().SelectedIndex;
+                      switch (emode)
+                        {
+                          case 0:
+                            if (!_w.IsReady())
+                              {
+                                _e.Cast();
+                              }
+                          break;
+                          case 1:
+                            _e.Cast();
+                          break;
+                        }
                     }
+;
                   if (tt.HasBuff("dianamoonlight"))
                     {
                       if (_r.IsReady() && tt.IsValidTarget(_r.Range))
@@ -197,7 +184,7 @@ namespace Diana
             {
               return;
             }
-          if (spell.Name.ToLower().Contains("dianaarc") || spell.Name.ToLower().Contains("dianavortex") || spell.Name.ToLower().Contains("dianateleport"))
+          if (spell.Name.ToLower().Contains("dianaarc") || spell.Name.ToLower().Contains("dianateleport"))
             {
               Utility.DelayAction.Add(450, Orbwalking.ResetAutoAttackTimer);
             }
