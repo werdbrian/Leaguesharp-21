@@ -40,7 +40,6 @@ namespace Lucian
           }
         private static void Game_OnUpdate(EventArgs args)
           {
-            var tq = TargetSelector.GetTarget(_q.Range, TargetSelector.DamageType.Physical);
             var tex = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Physical);
             var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range, MinionTypes.All, MinionTeam.NotAlly);
             var targetqe = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).FirstOrDefault(hero => _config.Item("auto" + hero.ChampionName).GetValue<bool>());
@@ -62,7 +61,7 @@ namespace Lucian
               }
             if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
               {
-                if (tex != null && tq == null && tex.Distance(ObjectManager.Player) > _q.Range)
+                if (tex != null && tex.Distance(ObjectManager.Player) > _q.Range)
                   {
                     foreach (var minion in minions)
                       {
