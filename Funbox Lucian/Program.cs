@@ -65,7 +65,7 @@ namespace Lucian
                   {
                     foreach (var minion in minions)
                       {
-                        if (_q.IsReady() && _q2.WillHit(targetqe, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                        if (_q.IsReady() && _q2.WillHit(tex, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
                           {
                             _q2.CastOnUnit(minion);
                           }
