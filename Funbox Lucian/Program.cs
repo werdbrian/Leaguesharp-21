@@ -77,10 +77,10 @@ namespace Lucian
                           }
                       }
                   }
-                if (!_config.Item("qexk2").GetValue<bool>())
+                if (_config.Item("qexk2").GetValue<bool>())
                   {
-                    var targetqkk = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).FirstOrDefault(hero => _config.Item("auto" + hero.ChampionName).GetValue<bool>());
-                    if (targetqkk != null && targetqkk.Distance(ObjectManager.Player) > _q.Range && ObjectManager.Player.GetSpellDamage(targetqkk, SpellSlot.Q) >= targetqkk.Health)
+                    var targetqkk = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).Where(hero => hero.Distance(ObjectManager.Player) > _q.Range).FirstOrDefault(hero => _config.Item("auto" + hero.ChampionName).GetValue<bool>());
+                    if (targetqkk != null && ObjectManager.Player.GetSpellDamage(targetqkk, SpellSlot.Q) >= targetqkk.Health)
                       {
                         foreach (var minion in minions)
                           {
