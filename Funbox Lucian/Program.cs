@@ -44,6 +44,11 @@ namespace Lucian
           }
         private static void Game_OnUpdate(EventArgs args)
           {
+            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range, MinionTypes.All, MinionTeam.NotAlly);
+            var tex = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Physical);
+            var targetqe = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).FirstOrDefault(hero => _config.Item("auto" + hero.ChampionName).GetValue<bool>());
+            var targetqk = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).Where(hero => hero.Distance(ObjectManager.Player) > _q.Range).Where(hero => ObjectManager.Player.GetSpellDamage(hero, SpellSlot.Q) >= hero.Health);
+            var targetqkk = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).FirstOrDefault(hero => _config.Item("auto" + hero.ChampionName).GetValue<bool>());
             if (_w2.IsReady())
               {
                 foreach (var target in HeroManager.Enemies.Where(x => x.IsValidTarget(_w2.Range)))
@@ -62,10 +67,8 @@ namespace Lucian
               {
                 if (!_config.Item("qexk2").GetValue<bool>())
                   {
-                    var targetqk = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).Where(hero => hero.Distance(ObjectManager.Player) > _q.Range).Where(hero => ObjectManager.Player.GetSpellDamage(hero, SpellSlot.Q) >= hero.Health);
                     if (targetqk != null)
                       {
-                        var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range, MinionTypes.All, MinionTeam.NotAlly);
                         foreach (var minion in minions)
                           {
                             if (_q.IsReady() && _q2.WillHit(targetqk, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
@@ -77,8 +80,6 @@ namespace Lucian
                   }
                 if (!_config.Item("qexk2").GetValue<bool>())
                   {
-                    var targetqkk = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).FirstOrDefault(hero => _config.Item("auto" + hero.ChampionName).GetValue<bool>());
-                    var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range, MinionTypes.All, MinionTeam.NotAlly);
                     if (targetqkk != null && targetqkk.Distance(ObjectManager.Player) > _q.Range && ObjectManager.Player.GetSpellDamage(targetqkk, SpellSlot.Q) >= targetqkk.Health)
                       {
                         foreach (var minion in minions)
@@ -101,9 +102,6 @@ namespace Lucian
                       }
                   }
               }
-            var tex = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Physical);
-            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range, MinionTypes.All, MinionTeam.NotAlly);
-            var targetqe = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).FirstOrDefault(hero => _config.Item("auto" + hero.ChampionName).GetValue<bool>());
             if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit)
               {
                 if (targetqe != null)
