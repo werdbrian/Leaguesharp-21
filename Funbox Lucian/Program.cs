@@ -8,7 +8,7 @@ namespace Lucian
       {
         private static Menu _config;
         private static Orbwalking.Orbwalker _orbwalker;
-        private static Spell _q, _q2, _w;
+        private static Spell _q, _q2, _w, _w2;
         private static string[] select = {"Ashe", "Caitlyn", "Corki", "Draven", "Ezreal", "Graves", "Jinx", "Kalista", "KogMaw", "Lucian", "MissFortune","Quinn","Sivir","Teemo","Tristana","TwistedFate","Twitch","Urgot","Varus","Vayne"};
         private static void Main(string[] args)
           {
@@ -20,14 +20,18 @@ namespace Lucian
               return;
             _q = new Spell(SpellSlot.Q, 700);
             _q2 = new Spell(SpellSlot.Q, 1200);
-            _w = new Spell(SpellSlot.W, 1050);
+            _w = new Spell(SpellSlot.W, 700);
+            _w2 = new Spell(SpellSlot.W, 1100);
             _q2.SetSkillshot(0.25f, 70, 3000, false, SkillshotType.SkillshotLine);
             _w.SetSkillshot(0.25f, 70, 1500, false, SkillshotType.SkillshotLine);
+            _w2.SetSkillshot(0.25f, 70, 1500, true, SkillshotType.SkillshotLine);
             _config = new Menu("Lucian", "Lucian", true);
             _orbwalker = new Orbwalking.Orbwalker(_config.SubMenu("Orbwalking"));
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
             TargetSelector.AddToMenu(targetSelectorMenu);
             _config.AddSubMenu(targetSelectorMenu);
+            _config.AddItem(new MenuItem("qexk", "Q ex in combo only if killable").SetValue(true));
+            _config.AddItem(new MenuItem("qexk2", "Q ex in combo only selected champion in harass menu").SetValue(true));
             foreach (var hero in HeroManager.Enemies) 
               {
                 _config.SubMenu("Harass").AddItem(new MenuItem("auto" + hero.ChampionName, hero.ChampionName).SetValue(select.Contains(hero.ChampionName)));
@@ -40,6 +44,61 @@ namespace Lucian
           }
         private static void Game_OnUpdate(EventArgs args)
           {
+            if (_w2.IsReady())
+              {
+                foreach (var target in HeroManager.Enemies.Where(x => x.IsValidTarget(_w2.Range))
+                  {
+                    if (ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) >= target.Health)
+                      {
+                        var WPred = _w2.GetPrediction(target);
+                        if (WPred.Hitchance >= HitChance.High)
+                          {
+                            _w2.Cast(WPred.CastPosition);
+                          }
+                      }
+                  }
+              }
+            if (_q2.IsReady())
+              {
+                if (!_config.Item("qexk2").GetValue<bool>())
+                  {
+                    var targetqk = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range));
+                    if (targetqk != null && targetqk.Distance(ObjectManager.Player) > _q.Range && ObjectManager.Player.GetSpellDamage(targetqk, SpellSlot.Q) >= targetqk.Health)
+                      {
+                        foreach (var minion in minions)
+                          {
+                            if (_q.IsReady() && _q2.WillHit(targetqk, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                              {
+                                _q2.CastOnUnit(minion);
+                              }
+                          }
+                      }
+                  }
+                if (!_config.Item("qexk2").GetValue<bool>())
+                  {
+                    var targetqkk = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).FirstOrDefault(hero => _config.Item("auto" + hero.ChampionName).GetValue<bool>());
+                    if (targetqkk != null && targetqkk.Distance(ObjectManager.Player) > _q.Range && ObjectManager.Player.GetSpellDamage(targetqkk, SpellSlot.Q) >= targetqkk.Health)
+                      {
+                        foreach (var minion in minions)
+                          {
+                            if (_q.IsReady() && _q2.WillHit(targetqkk, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                              {
+                                _q2.CastOnUnit(minion);
+                              }
+                          }
+                      }
+                  }
+              }
+            if (_q.IsReady())
+              {
+                foreach (var target in HeroManager.Enemies.Where(x => x.IsValidTarget(_q.Range))
+                  {
+                    if (ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) >= target.Health)
+                      {
+                        _q.CastOnUnit(target);
+                      }
+                  }
+              }
             var tex = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Physical);
             var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range, MinionTypes.All, MinionTeam.NotAlly);
             var targetqe = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).FirstOrDefault(hero => _config.Item("auto" + hero.ChampionName).GetValue<bool>());
@@ -61,13 +120,29 @@ namespace Lucian
               }
             if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
               {
-                if (tex != null && tex.Distance(ObjectManager.Player) > _q.Range)
+                if (!_config.Item("qexk").GetValue<bool>() && !_config.Item("qexk2").GetValue<bool>())
                   {
-                    foreach (var minion in minions)
+                    if (tex != null && tex.Distance(ObjectManager.Player) > _q.Range)
                       {
-                        if (_q.IsReady() && _q2.WillHit(tex, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                        foreach (var minion in minions)
                           {
-                            _q2.CastOnUnit(minion);
+                            if (_q.IsReady() && _q2.WillHit(tex, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                              {
+                                _q2.CastOnUnit(minion);
+                              }
+                          }
+                      }
+                  }
+                if (!_config.Item("qexk").GetValue<bool>() && _config.Item("qexk2").GetValue<bool>())
+                  {
+                    if (targetqe != null && targetqe.Distance(ObjectManager.Player) > _q.Range)
+                      {
+                        foreach (var minion in minions)
+                          {
+                            if (_q.IsReady() && _q2.WillHit(targetqe, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                              {
+                                _q2.CastOnUnit(minion);
+                              }
                           }
                       }
                   }
