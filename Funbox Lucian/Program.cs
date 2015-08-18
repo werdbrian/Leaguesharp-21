@@ -46,7 +46,7 @@ namespace Lucian
           {
             if (_w2.IsReady())
               {
-                foreach (var target in HeroManager.Enemies.Where(x => x.IsValidTarget(_w2.Range))
+                foreach (var target in HeroManager.Enemies.Where(x => x.IsValidTarget(_w2.Range)))
                   {
                     if (ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) >= target.Health)
                       {
@@ -91,7 +91,7 @@ namespace Lucian
               }
             if (_q.IsReady())
               {
-                foreach (var target in HeroManager.Enemies.Where(x => x.IsValidTarget(_q.Range))
+                foreach (var target in HeroManager.Enemies.Where(x => x.IsValidTarget(_q.Range)))
                   {
                     if (ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) >= target.Health)
                       {
