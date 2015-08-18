@@ -166,7 +166,6 @@ namespace Diana
                           break;
                         }
                     }
-;
                   if (tt.HasBuff("dianamoonlight"))
                     {
                       if (_r.IsReady() && tt.IsValidTarget(_r.Range))
