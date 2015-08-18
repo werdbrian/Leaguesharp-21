@@ -37,15 +37,24 @@ namespace Irelia
               ObjectManager.Player.Spellbook.LevelSpell(SpellSlot.R);
             }
           var target = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Physical);
-          if (target != null)
+          var tw = TargetSelector.GetTarget(_w.Range, TargetSelector.DamageType.Physical);
+          var te = TargetSelector.GetTarget(_e.Range, TargetSelector.DamageType.Magical);
+          if (te != null)
             {
-              if (_e.IsReady() && target.IsValidTarget(_e.Range) && (target.Health/target.MaxHealth)*100 > (ObjectManager.Player.Health/ObjectManager.Player.MaxHealth)*100)
+              if (_e.IsReady() && te.IsValidTarget(_e.Range) && (te.Health/te.MaxHealth)*100 > (ObjectManager.Player.Health/ObjectManager.Player.MaxHealth)*100)
                 {
-                  _e.CastOnUnit(target);
+                  _e.CastOnUnit(te);
                 }
             }
           if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
             {
+              if (tw != null)
+                {
+                  if (_w.IsReady() && target.IsValidTarget(_w.Range))
+                    {
+                      _w.Cast();
+                    }
+                }
               if (target != null)
                 {
                   if (_q.IsReady() && _w.IsReady() && target.IsValidTarget(_q.Range))
@@ -55,10 +64,6 @@ namespace Irelia
                   if (_q.IsReady() && target.IsValidTarget(_q.Range) && target.Distance(ObjectManager.Player.Position) > Orbwalking.GetRealAutoAttackRange(ObjectManager.Player))
                     {
                       _q.CastOnUnit(target);
-                    }
-                  else if (_w.IsReady() && target.IsValidTarget(_w.Range))
-                    {
-                      _w.Cast();
                     }
                   else if (_e.IsReady() && target.IsValidTarget(_e.Range))
                     {

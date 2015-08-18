@@ -118,7 +118,7 @@ namespace Diana
             }
           if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
             {
-              var tt = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Magical);
+              var tt = TargetSelector.GetTarget(900, TargetSelector.DamageType.Magical);
               if (tt != null)
                 {
                   var QPred = _q.GetPrediction(target);
