@@ -42,7 +42,7 @@ namespace Lucian
           {
             var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range, MinionTypes.All, MinionTeam.NotAlly);
             var targetqe = HeroManager.Enemies.Where(hero => hero.IsValidTarget(_q2.Range)).FirstOrDefault(hero => _config.Item("auto" + hero.ChampionName).GetValue<bool>());
-            if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit)
+            if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit)
               {
                 if (targetqe != null)
                   {
@@ -58,30 +58,47 @@ namespace Lucian
                       }
                   }
               }
+            if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
+              {
+                if (targetqe != null && targetqe.Distance(ObjectManager.Player) > _q.Range)
+                  {
+                    foreach (var minion in minions)
+                      {
+                        if (_q.IsReady() && _q2.WillHit(targetqe, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                          {
+                            _q2.CastOnUnit(minion);
+                          }
+                      }
+                  }
+              }
           }
         private static void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
           {
-            var ta = TargetSelector.GetTarget(_w.Range, TargetSelector.DamageType.Magical);
+            var tq = TargetSelector.GetTarget(_q.Range, TargetSelector.DamageType.Physical);
+            var tw = TargetSelector.GetTarget(_w.Range, TargetSelector.DamageType.Magical);
             if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
               {
-                if (ta != null)
+                if (tq != null)
                   {
-                    if (_q.IsReady() && ta.IsValidTarget(_q.Range))
+                    if (_q.IsReady() && tq.IsValidTarget())
                       {
-                        _q.CastOnUnit(ta);
+                        _q.CastOnUnit(tq);
                       }
-                    if (!_q.IsReady() && _w.IsReady() && ta.IsValidTarget())
+                    if (tq.IsValidTarget(550))
                       {
-                        var WPred = _w.GetPrediction(ta);
+                        Items.UseItem(3144, tq);
+                        Items.UseItem(3153, tq);
+                      }
+                  }
+                if (tw != null)
+                  {
+                    if (!_q.IsReady() && _w.IsReady() && tw.IsValidTarget())
+                      {
+                        var WPred = _w.GetPrediction(tw);
                         if (WPred.Hitchance >= HitChance.Low)
                           {
                             _w.Cast(WPred.CastPosition);
                           }
-                      }
-                    if (ta.IsValidTarget(550))
-                      {
-                        Items.UseItem(3144, ta);
-                        Items.UseItem(3153, ta);
                       }
                   }
               }
