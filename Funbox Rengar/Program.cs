@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using LeagueSharp;
+using System.Drawing;
 using LeagueSharp.Common;
 namespace Rengar
 {
@@ -9,6 +10,7 @@ namespace Rengar
       private static Menu _config;
       private static Orbwalking.Orbwalker _orbwalker;
       private static Spell _q, _w, _e;
+      private static int _lastTick;
       private static void Main(string[] args)
         {
           CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -26,8 +28,12 @@ namespace Rengar
           var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
           TargetSelector.AddToMenu(targetSelectorMenu);
           _config.AddSubMenu(targetSelectorMenu);
+          _config.AddItem(new MenuItem("ComboMode", "Combo Mode").SetValue(new StringList(new[]{"Empowered Q", "Empowered E"})));
+          _config.AddItem(new MenuItem("ComboSwitch", "Combo switch Key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
           _config.AddItem(new MenuItem("autoheal", "%hp autoheal").SetValue(new Slider(33, 100, 0)));
+          _config.AddItem(new MenuItem("drawtar", "Active Enemy").SetValue(new Circle(true, Color.GreenYellow)));
           _config.AddToMainMenu();
+          Drawing.OnDraw += Drawing_OnDraw;
           Obj_AI_Base.OnProcessSpellCast += oncast;
           Game.OnUpdate += Game_OnUpdate;
         }
@@ -45,6 +51,7 @@ namespace Rengar
         }
       private static void Game_OnUpdate(EventArgs args)
         {
+          ComboModeSwitch();
           if (ObjectManager.Player.Mana == 5)
             {
               if ((ObjectManager.Player.Health/ObjectManager.Player.MaxHealth)*100 <= _config.Item("autoheal").GetValue<Slider>().Value)
@@ -157,46 +164,127 @@ namespace Rengar
                 {
                   if ((ObjectManager.Player.Health/ObjectManager.Player.MaxHealth)*100 > _config.Item("autoheal").GetValue<Slider>().Value)
                     {
-                      if (etarget != null)
+                      switch (_config.Item("ComboMode").GetValue<StringList>().SelectedIndex)
                         {
-                          if (etarget.IsValidTarget(1000))
-                            {
-                              if (ObjectManager.Player.HasBuff("rengarpassivebuff"))
-                                {
-                                  if (_q.IsReady())
-                                    {
-                                      _q.Cast();
-                                    }
-                                }
-                              if (!ObjectManager.Player.HasBuff("rengarpassivebuff"))
-                                {
-                                  if (etarget.Distance(ObjectManager.Player.Position) > _q.Range)
-                                    {
-                                      if (_e.IsReady())
-                                        {
-                                          var EPred = _e.GetPrediction(etarget);
-                                          if (EPred.Hitchance >= HitChance.High)
-                                            {
-                                              _e.Cast(EPred.CastPosition);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                      if (qwtarget != null)
-                        {
-                          if (_q.IsReady())
-                            {
-                              if (qwtarget.IsValidTarget(_q.Range))
-                                {
-                                  _q.Cast();
-                                }
-                            }
+                          case 0:
+                            if (etarget != null)
+                              {
+                                if (etarget.IsValidTarget(1000))
+                                  {
+                                    if (ObjectManager.Player.HasBuff("rengarpassivebuff"))
+                                      {
+                                        if (_q.IsReady())
+                                          {
+                                            _q.Cast();
+                                          }
+                                      }
+                                    if (!ObjectManager.Player.HasBuff("rengarpassivebuff"))
+                                      {
+                                        if (etarget.Distance(ObjectManager.Player.Position) > _q.Range)
+                                          {
+                                            if (_e.IsReady())
+                                              {
+                                                var EPred = _e.GetPrediction(etarget);
+                                                if (EPred.Hitchance >= HitChance.Medium)
+                                                  {
+                                                    _e.Cast(EPred.CastPosition);
+                                                  }
+                                              }
+                                          }
+                                      }
+                                  }
+                              }
+                            if (qwtarget != null)
+                              {
+                                if (_q.IsReady())
+                                  {
+                                    if (qwtarget.IsValidTarget(_q.Range))
+                                      {
+                                        _q.Cast();
+                                      }
+                                  }
+                              }
+                          break;
+                          case 1:
+                            if (etarget != null)
+                              {
+                                if (etarget.IsValidTarget(1000))
+                                  {
+                                    if (!ObjectManager.Player.HasBuff("rengarpassivebuff"))
+                                      {
+                                        if (etarget.Distance(ObjectManager.Player.Position) > _q.Range)
+                                          {
+                                            if (_e.IsReady())
+                                              {
+                                                var EPred = _e.GetPrediction(etarget);
+                                                if (EPred.Hitchance >= HitChance.Medium)
+                                                  {
+                                                    _e.Cast(EPred.CastPosition);
+                                                  }
+                                              }
+                                          }
+                                      }
+                                  }
+                              }
+                            if (qwtarget != null)
+                              {
+                                if (_e.IsReady())
+                                  {
+                                    if (qwtarget.IsValidTarget(300))
+                                      {
+                                        var EPred = _e.GetPrediction(etarget);
+                                        if (EPred.Hitchance >= HitChance.Medium)
+                                          {
+                                            _e.Cast(EPred.CastPosition);
+                                          }
+                                      }
+                                  }
+                              }
+                          break;
                         }
                     }
                 }
             }
         }
-    }
+      private static void Drawing_OnDraw(EventArgs args)
+        {
+          var wts = Drawing.WorldToScreen(ObjectManager.Player.Position);
+          var target = TargetSelector.GetTarget(1000, TargetSelector.DamageType.Physical);
+          if (_config.Item("drawtar").GetValue<Circle>().Active)
+            {
+              if (target.IsValidTarget(1000))
+                {
+                  Render.Circle.DrawCircle(target.Position, 115f, _config.Item("drawtar").GetValue<Circle>().Color, 1);
+                }
+            }
+            switch (_config.Item("ComboMode").GetValue<StringList>().SelectedIndex)
+              {
+                case 0:
+                  Drawing.DrawText(wts[0], wts[1], Color.White, "Q");
+                break;
+                case 1:
+                  Drawing.DrawText(wts[0], wts[1], Color.White, "E");
+                break;
+              }
+         }
+       private static void ComboModeSwitch()
+          {
+            var lasttime = Environment.TickCount - _lastTick;
+            if (!_config.Item("ComboSwitch").GetValue<KeyBind>().Active || lasttime <= Game.Ping)
+              {
+                return;
+              }
+            switch (_config.Item("ComboMode").GetValue<StringList>().SelectedIndex)
+              {
+                case 0:
+                  _config.Item("ComboMode").SetValue(new StringList(new[]{"Empowered Q", "Empowered E"}, 1));
+                  _lastTick = Environment.TickCount + 300;
+                break;
+                case 1:
+                  _config.Item("ComboMode").SetValue(new StringList(new[]{"Empowered Q", "Empowered E"}));
+                  _lastTick = Environment.TickCount + 300;
+                break;
+              }
+          }
+      }
 }
