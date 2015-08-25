@@ -94,33 +94,6 @@ private static void Game_OnUpdate(EventArgs args)
     OrbModeSwitch();
     if (TargetSelector.GetPriority(etarget) == 2.5f)
     {
-        if (etarget.IsValidTarget(500))
-        {
-            if (_smite != SpellSlot.Unknown)
-            {
-                if (ObjectManager.Player.Spellbook.CanUseSpell(_smite) == SpellState.Ready)
-                {
-                    ObjectManager.Player.Spellbook.CastSpell(_smite, etarget);
-                }
-            }
-            if (_smitee != SpellSlot.Unknown)
-            {
-                if (ObjectManager.Player.Spellbook.CanUseSpell(_smitee) == SpellState.Ready)
-                {
-                    ObjectManager.Player.Spellbook.CastSpell(_smitee, etarget);
-                }
-            }
-            if (_smiteee != SpellSlot.Unknown)
-            {
-                if (ObjectManager.Player.Spellbook.CanUseSpell(_smiteee) == SpellState.Ready)
-                {
-                    ObjectManager.Player.Spellbook.CastSpell(_smiteee, etarget);
-                }
-            }
-        }
-    }
-    if (TargetSelector.GetPriority(etarget) == 2.5f)
-    {
         if (etarget.IsValidTarget(1500) && ObjectManager.Player.HasBuff("rengarpassivebuff"))
         {
             TargetSelector.SetTarget(etarget);
@@ -133,6 +106,33 @@ private static void Game_OnUpdate(EventArgs args)
     }
     if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
     {
+        if (TargetSelector.GetPriority(etarget) == 2.5f && !ObjectManager.Player.HasBuff("rengarpassivebuff"))
+        {
+            if (etarget.IsValidTarget(500))
+            {
+                if (_smite != SpellSlot.Unknown)
+                {
+                    if (ObjectManager.Player.Spellbook.CanUseSpell(_smite) == SpellState.Ready)
+                    {
+                        ObjectManager.Player.Spellbook.CastSpell(_smite, etarget);
+                    }
+                }
+                if (_smitee != SpellSlot.Unknown)
+                {
+                    if (ObjectManager.Player.Spellbook.CanUseSpell(_smitee) == SpellState.Ready)
+                    {
+                        ObjectManager.Player.Spellbook.CastSpell(_smitee, etarget);
+                    }
+                }
+                if (_smiteee != SpellSlot.Unknown)
+                {
+                    if (ObjectManager.Player.Spellbook.CanUseSpell(_smiteee) == SpellState.Ready)
+                    {
+                        ObjectManager.Player.Spellbook.CastSpell(_smiteee, etarget);
+                    }
+                }
+            }
+        }
         if (ObjectManager.Player.Mana <= 4)
         {
             if (etarget.IsValidTarget(1000) && ObjectManager.Player.HasBuff("rengarpassivebuff"))
