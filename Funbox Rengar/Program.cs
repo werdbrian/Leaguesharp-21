@@ -20,7 +20,7 @@ namespace Rengar
           if (ObjectManager.Player.ChampionName != "Rengar")
             return;
           _q = new Spell(SpellSlot.Q, 230);
-          _w = new Spell(SpellSlot.W, 450);
+          _w = new Spell(SpellSlot.W, 400);
           _e = new Spell(SpellSlot.E, 1000);
           _e.SetSkillshot(0.25f, 70, 1500, true, SkillshotType.SkillshotLine);
           _config = new Menu("Rengar", "Rengar", true);
@@ -46,7 +46,11 @@ namespace Rengar
             }
           if (spell.Name.ToLower().Contains("rengarq"))
             {
-              Orbwalking.ResetAutoAttackTimer();
+              Utility.DelayAction.Add(250, Orbwalking.ResetAutoAttackTimer);
+            }
+          if (spell.Name.ToLower().Contains("rengare"))
+            {
+              Utility.DelayAction.Add(450, Orbwalking.ResetAutoAttackTimer);
             }
         }
       private static void Game_OnUpdate(EventArgs args)
@@ -83,7 +87,7 @@ namespace Rengar
           if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
             {
               var magnet = TargetSelector.GetTarget(_q.Range, TargetSelector.DamageType.Physical);
-              var qwtarget = TargetSelector.GetTarget(450, TargetSelector.DamageType.Physical);
+              var qwtarget = TargetSelector.GetTarget(400, TargetSelector.DamageType.Physical);
               var etarget = TargetSelector.GetTarget(1000, TargetSelector.DamageType.Physical);
               if (magnet != null)
                 {
@@ -122,10 +126,13 @@ namespace Rengar
                             {
                               if (_e.IsReady())
                                 {
-                                  var EPred = _e.GetPrediction(etarget);
-                                  if (EPred.Hitchance >= HitChance.Medium)
+                                  if (etarget.Distance(ObjectManager.Player.Position) > 300)
                                     {
-                                      _e.Cast(EPred.CastPosition);
+                                      var EPred = _e.GetPrediction(etarget);
+                                      if (EPred.Hitchance >= HitChance.High)
+                                        {
+                                          _e.Cast(EPred.CastPosition);
+                                        }
                                     }
                                 }
                             }
@@ -152,7 +159,7 @@ namespace Rengar
                           if (qwtarget.IsValidTarget(300))
                             {
                               var EPred = _e.GetPrediction(etarget);
-                              if (EPred.Hitchance >= HitChance.Medium)
+                              if (EPred.Hitchance >= HitChance.High)
                                 {
                                   _e.Cast(EPred.CastPosition);
                                 }
@@ -185,7 +192,7 @@ namespace Rengar
                                             if (_e.IsReady())
                                               {
                                                 var EPred = _e.GetPrediction(etarget);
-                                                if (EPred.Hitchance >= HitChance.Medium)
+                                                if (EPred.Hitchance >= HitChance.High)
                                                   {
                                                     _e.Cast(EPred.CastPosition);
                                                   }
@@ -217,7 +224,7 @@ namespace Rengar
                                             if (_e.IsReady())
                                               {
                                                 var EPred = _e.GetPrediction(etarget);
-                                                if (EPred.Hitchance >= HitChance.Medium)
+                                                if (EPred.Hitchance >= HitChance.High)
                                                   {
                                                     _e.Cast(EPred.CastPosition);
                                                   }
@@ -233,7 +240,7 @@ namespace Rengar
                                     if (qwtarget.IsValidTarget(300))
                                       {
                                         var EPred = _e.GetPrediction(etarget);
-                                        if (EPred.Hitchance >= HitChance.Medium)
+                                        if (EPred.Hitchance >= HitChance.High)
                                           {
                                             _e.Cast(EPred.CastPosition);
                                           }
