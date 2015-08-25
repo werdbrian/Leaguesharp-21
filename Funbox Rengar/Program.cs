@@ -33,14 +33,13 @@ namespace Rengar
           TargetSelector.AddToMenu(targetSelectorMenu);
           _config.AddSubMenu(targetSelectorMenu);
           _config.AddItem(new MenuItem("emode", "E mode").SetValue(false));
-          _config.AddItem(new MenuItem("mmode", "magnet if spells ready").SetValue(false));
+          _config.AddItem(new MenuItem("mmode", "Oneshot mode").SetValue(false));
           _config.AddItem(new MenuItem("autoheal", "%hp autoheal").SetValue(new Slider(35, 100, 0)));
           _config.AddItem(new MenuItem("drawtar", "Active Enemy").SetValue(new Circle(true, Color.GreenYellow)));
           _config.AddToMainMenu();
           Drawing.OnDraw += Drawing_OnDraw;
           Game.OnUpdate += Game_OnUpdate;
         }
-
       private static void Game_OnUpdate(EventArgs args)
         {
           if (ObjectManager.Player.HasBuff("rengarqbase") || ObjectManager.Player.HasBuff("rengarqemp"))
@@ -108,14 +107,23 @@ namespace Rengar
               var etarget = TargetSelector.GetTarget(1200, TargetSelector.DamageType.Physical);
               if (_config.Item("mmode").GetValue<bool>())
                 {
-                  var magnet = TargetSelector.GetTarget(_q.Range, TargetSelector.DamageType.Physical);
                   if (!ObjectManager.Player.HasBuff("rengarpassivebuff"))
                     {
-                      if (magnet.IsValidTarget(_q.Range))
+                      if (qwtarget.IsValidTarget(_w.Range))
+                        {
+                          ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, qwtarget);
+                        }
+                    }
+                }
+              if (!_config.Item("mmode").GetValue<bool>())
+                {
+                  if (!ObjectManager.Player.HasBuff("rengarpassivebuff"))
+                    {
+                      if (qwtarget.IsValidTarget(_w.Range))
                         {
                           if (_q.IsReady() || _w.IsReady() || _e.IsReady())
                             {
-                              ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, magnet);
+                              ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, qwtarget);
                             }
                         }
                     }
