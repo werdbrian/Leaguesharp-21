@@ -20,7 +20,7 @@ namespace Rengar
           if (ObjectManager.Player.ChampionName != "Rengar")
             return;
           _q = new Spell(SpellSlot.Q, 230);
-          _w = new Spell(SpellSlot.W, 400);
+          _w = new Spell(SpellSlot.W, 350);
           _e = new Spell(SpellSlot.E, 1000);
           _e.SetSkillshot(0.25f, 70, 1500, true, SkillshotType.SkillshotLine);
           _config = new Menu("Rengar", "Rengar", true);
@@ -88,7 +88,7 @@ namespace Rengar
           if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
             {
               var magnet = TargetSelector.GetTarget(_q.Range, TargetSelector.DamageType.Physical);
-              var qwtarget = TargetSelector.GetTarget(400, TargetSelector.DamageType.Physical);
+              var qwtarget = TargetSelector.GetTarget(_w.Range, TargetSelector.DamageType.Physical);
               var etarget = TargetSelector.GetTarget(1500, TargetSelector.DamageType.Physical);
               switch (_config.Item("magnet").GetValue<StringList>().SelectedIndex)
                 {
@@ -147,7 +147,7 @@ namespace Rengar
                             {
                               if (_e.IsReady())
                                 {
-                                  if (etarget.Distance(ObjectManager.Player.Position) > 300)
+                                  if (etarget.Distance(ObjectManager.Player.Position) > _w.Range)
                                     {
                                       var EPred = _e.GetPrediction(etarget);
                                       if (EPred.Hitchance >= HitChance.High)
@@ -177,7 +177,7 @@ namespace Rengar
                         }
                       if (_e.IsReady())
                         {
-                          if (qwtarget.IsValidTarget(300))
+                          if (qwtarget.IsValidTarget(_w.Range))
                             {
                               var EPred = _e.GetPrediction(etarget);
                               if (EPred.Hitchance >= HitChance.High)
@@ -240,14 +240,17 @@ namespace Rengar
                                   {
                                     if (!ObjectManager.Player.HasBuff("rengarpassivebuff"))
                                       {
-                                        if (etarget.Distance(ObjectManager.Player.Position) > _q.Range)
+                                        if (etarget.Distance(ObjectManager.Player.Position) > _w.Range)
                                           {
-                                            if (_e.IsReady())
+                                            if (etarget.Distance(ObjectManager.Player.Position) > _q.Range)
                                               {
-                                                var EPred = _e.GetPrediction(etarget);
-                                                if (EPred.Hitchance >= HitChance.High)
+                                                if (_e.IsReady())
                                                   {
-                                                    _e.Cast(EPred.CastPosition);
+                                                    var EPred = _e.GetPrediction(etarget);
+                                                    if (EPred.Hitchance >= HitChance.High)
+                                                      {
+                                                        _e.Cast(EPred.CastPosition);
+                                                      }
                                                   }
                                               }
                                           }
@@ -258,7 +261,7 @@ namespace Rengar
                               {
                                 if (_e.IsReady())
                                   {
-                                    if (qwtarget.IsValidTarget(300))
+                                    if (qwtarget.IsValidTarget(_w.Range))
                                       {
                                         var EPred = _e.GetPrediction(etarget);
                                         if (EPred.Hitchance >= HitChance.High)
