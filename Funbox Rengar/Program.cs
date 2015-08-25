@@ -28,6 +28,7 @@ namespace Rengar
           var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
           TargetSelector.AddToMenu(targetSelectorMenu);
           _config.AddSubMenu(targetSelectorMenu);
+          _config.AddItem(new MenuItem("magnet", "Magnet Mode").SetValue(new StringList(new[]{"oneshot >= 6 lvl | if spells ready < 6 lvl", "if spells ready", "none"})));
           _config.AddItem(new MenuItem("ComboMode", "Combo Mode").SetValue(new StringList(new[]{"Empowered Q", "Empowered E"})));
           _config.AddItem(new MenuItem("ComboSwitch", "Combo switch Key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
           _config.AddItem(new MenuItem("autoheal", "%hp autoheal").SetValue(new Slider(33, 100, 0)));
@@ -89,25 +90,45 @@ namespace Rengar
               var magnet = TargetSelector.GetTarget(_q.Range, TargetSelector.DamageType.Physical);
               var qwtarget = TargetSelector.GetTarget(400, TargetSelector.DamageType.Physical);
               var etarget = TargetSelector.GetTarget(1500, TargetSelector.DamageType.Physical);
-              if (magnet != null)
+              switch (_config.Item("magnet").GetValue<StringList>().SelectedIndex)
                 {
-                  if (magnet.IsValidTarget(_q.Range))
-                    {
-                      if (!ObjectManager.Player.HasBuff("rengarpassivebuff"))
-                        {
-                          if (ObjectManager.Player.Level < 6)
-                            {
-                              if (_q.IsReady() || _w.IsReady() || _e.IsReady())
-                                {
-                                  ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, magnet);
-                                }
-                            }
-                          if (ObjectManager.Player.Level >= 6)
-                            {
-                              ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, magnet);
-                            }
-                        }
-                    }
+                  case 0:
+                    if (magnet != null)
+                      {
+                        if (magnet.IsValidTarget(_q.Range))
+                          {
+                            if (!ObjectManager.Player.HasBuff("rengarpassivebuff"))
+                              {
+                                if (ObjectManager.Player.Level < 6)
+                                  {
+                                    if (_q.IsReady() || _w.IsReady() || _e.IsReady())
+                                      {
+                                        ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, magnet);
+                                      }
+                                  }
+                                if (ObjectManager.Player.Level >= 6)
+                                  {
+                                    ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, magnet);
+                                  }
+                              }
+                          }
+                      }
+                  break;
+                  case 1:
+                    if (magnet != null)
+                      {
+                        if (magnet.IsValidTarget(_q.Range))
+                          {
+                            if (!ObjectManager.Player.HasBuff("rengarpassivebuff"))
+                              {
+                                if (_q.IsReady() || _w.IsReady() || _e.IsReady())
+                                  {
+                                    ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, magnet);
+                                  }
+                              }
+                          }
+                      }
+                  break;
                 }
               if (ObjectManager.Player.Mana <= 4)
                 {
