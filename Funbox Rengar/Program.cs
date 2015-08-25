@@ -242,15 +242,12 @@ namespace Rengar
                                       {
                                         if (etarget.Distance(ObjectManager.Player.Position) > _w.Range)
                                           {
-                                            if (etarget.Distance(ObjectManager.Player.Position) > _q.Range)
+                                            if (_e.IsReady())
                                               {
-                                                if (_e.IsReady())
+                                                var EPred = _e.GetPrediction(etarget);
+                                                if (EPred.Hitchance >= HitChance.High)
                                                   {
-                                                    var EPred = _e.GetPrediction(etarget);
-                                                    if (EPred.Hitchance >= HitChance.High)
-                                                      {
-                                                        _e.Cast(EPred.CastPosition);
-                                                      }
+                                                    _e.Cast(EPred.CastPosition);
                                                   }
                                               }
                                           }
