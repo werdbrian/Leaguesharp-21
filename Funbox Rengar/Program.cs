@@ -46,7 +46,7 @@ namespace Rengar
         {
             if (ObjectManager.Player.HasBuff("rengarqbase") || ObjectManager.Player.HasBuff("rengarqemp"))
             {
-                Utility.DelayAction.Add(250, Orbwalking.ResetAutoAttackTimer);
+                Orbwalking.ResetAutoAttackTimer();
             }
             if (ObjectManager.Player.Mana == 5)
             {
