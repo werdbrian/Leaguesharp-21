@@ -88,7 +88,7 @@ namespace Rengar
             {
               var magnet = TargetSelector.GetTarget(_q.Range, TargetSelector.DamageType.Physical);
               var qwtarget = TargetSelector.GetTarget(400, TargetSelector.DamageType.Physical);
-              var etarget = TargetSelector.GetTarget(1000, TargetSelector.DamageType.Physical);
+              var etarget = TargetSelector.GetTarget(1500, TargetSelector.DamageType.Physical);
               if (magnet != null)
                 {
                   if (magnet.IsValidTarget(_q.Range))
@@ -256,10 +256,10 @@ namespace Rengar
       private static void Drawing_OnDraw(EventArgs args)
         {
           var wts = Drawing.WorldToScreen(ObjectManager.Player.Position);
-          var target = TargetSelector.GetTarget(1000, TargetSelector.DamageType.Physical);
+          var target = TargetSelector.GetTarget(1500, TargetSelector.DamageType.Physical);
           if (_config.Item("drawtar").GetValue<Circle>().Active)
             {
-              if (target.IsValidTarget(1000))
+              if (target.IsValidTarget(1500))
                 {
                   Render.Circle.DrawCircle(target.Position, 115f, _config.Item("drawtar").GetValue<Circle>().Color, 1);
                 }
