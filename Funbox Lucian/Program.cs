@@ -24,7 +24,7 @@ namespace Lucian
             }
             _q = new Spell(SpellSlot.Q, 675);
             _q2 = new Spell(SpellSlot.Q, 1150);
-            _w = new Spell(SpellSlot.W, 1000);
+            _w = new Spell(SpellSlot.W, 700);
             _w2 = new Spell(SpellSlot.W, 1000);
             _e = new Spell(SpellSlot.E, 425);
             _q2.SetSkillshot(0.25f, 70, 3000, false, SkillshotType.SkillshotLine);
@@ -306,7 +306,7 @@ namespace Lucian
             }
             if (Wran.Active)
             {
-                Render.Circle.DrawCircle(ObjectManager.Player.Position, _w.Range, Wran.Color);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, _w2.Range, Wran.Color);
             }
             if (Eran.Active)
             {
