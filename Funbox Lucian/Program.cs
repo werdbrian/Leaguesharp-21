@@ -22,13 +22,14 @@ namespace Lucian
             {
                 return;
             }
-            _q = new Spell(SpellSlot.Q, 675);
+            _q = new Spell(SpellSlot.Q, 750);
             _q2 = new Spell(SpellSlot.Q, 1150);
-            _w = new Spell(SpellSlot.W, 700);
+            _w = new Spell(SpellSlot.W, 750);
             _w2 = new Spell(SpellSlot.W, 1000);
             _e = new Spell(SpellSlot.E, 425);
             _q2.SetSkillshot(0.25f, 70, 3000, false, SkillshotType.SkillshotLine);
             _w.SetSkillshot(0.25f, 70, 1500, false, SkillshotType.SkillshotLine);
+            _w.MinHitChance = HitChance.Medium;
             _w2.SetSkillshot(0.25f, 70, 1500, true, SkillshotType.SkillshotLine);
             _config = new Menu("Lucian", "Lucian", true);
             _orbwalker = new Orbwalking.Orbwalker(_config.SubMenu("Orbwalking"));
@@ -56,7 +57,8 @@ namespace Lucian
             _config.SubMenu("Drawings").SubMenu("Spells").AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(true, Color.FromArgb(150, Color.DodgerBlue))));
             _config.SubMenu("Drawings").AddItem(new MenuItem("emodraw", "E Mode Text").SetValue(true));
             _config.SubMenu("Drawings").AddItem(new MenuItem("tdraw", "Active Enemy").SetValue(new Circle(true, Color.GreenYellow)));
-            _config.AddItem(new MenuItem("dels", "Delay before spell").SetValue(new Slider(100, 200, 0)));
+            _config.AddItem(new MenuItem("delsq", "Delay before Q").SetValue(new Slider(50, 100, 0)));
+            _config.AddItem(new MenuItem("delsw", "Delay before W").SetValue(new Slider(150, 200, 100)));
             _config.AddToMainMenu();
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnProcessSpellCast += oncast;
@@ -143,9 +145,10 @@ namespace Lucian
         }
         private static void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-            var t = TargetSelector.GetTarget(700, TargetSelector.DamageType.Physical);
+            var t = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
             var obj = (Obj_AI_Base) target;
-            var dely = _config.Item("dels").GetValue<Slider>().Value;
+            var delyq = _config.Item("delsq").GetValue<Slider>().Value;
+            var delyw = _config.Item("delsw").GetValue<Slider>().Value;
             var quse = _config.Item("qcom").GetValue<bool>();
             var wuse = _config.Item("wcom").GetValue<bool>();
             var EMode =_config.Item("emod").GetValue<StringList>().SelectedIndex;
@@ -162,7 +165,7 @@ namespace Lucian
                     //W Usage
                     if (!_q.IsReady() && _w.IsReady() && wuse)
                     {
-                        Utility.DelayAction.Add(dely, Wuse);
+                        Utility.DelayAction.Add(delyw, Wuse);
                     }
                 }
                 if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
@@ -186,12 +189,12 @@ namespace Lucian
                             //Q Usage
                             if (!_e.IsReady() && _q.IsReady() && quse)
                             {
-                                Utility.DelayAction.Add(dely, Quse);
+                              Utility.DelayAction.Add(delyq, Quse);
                             }
                             //W Usage
                             if (!_q.IsReady() && !_e.IsReady() && _w.IsReady() && wuse)
                             {
-                                Utility.DelayAction.Add(dely, Wuse);
+                                Utility.DelayAction.Add(delyw, Wuse);
                             }
                         break;
                         //E To Mouse
@@ -204,12 +207,12 @@ namespace Lucian
                             //Q Usage
                             if (!_e.IsReady() && _q.IsReady() && quse)
                             {
-                                Utility.DelayAction.Add(dely, Quse);
+                              Utility.DelayAction.Add(delyq, Quse);
                             }
                             //W Usage
                             if (!_q.IsReady() && !_e.IsReady() && _w.IsReady() && wuse)
                             {
-                                Utility.DelayAction.Add(dely, Wuse);
+                                Utility.DelayAction.Add(delyw, Wuse);
                             }
                         break;
                         //E None
@@ -222,7 +225,7 @@ namespace Lucian
                             //W Usage
                             if (!_q.IsReady() && _w.IsReady() && wuse)
                             {
-                                Utility.DelayAction.Add(dely, Wuse);
+                                Utility.DelayAction.Add(delyw, Wuse);
                             }
                         break;
                     }
@@ -276,18 +279,14 @@ namespace Lucian
         //Q usage
         private static void Quse()
         {
-            var t = TargetSelector.GetTarget(700, TargetSelector.DamageType.Physical);
+            var t = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
             _q.CastOnUnit(t);
         }
         //W usage
         private static void Wuse()
         {
-            var t = TargetSelector.GetTarget(700, TargetSelector.DamageType.Physical);
-            var WPred = _w.GetPrediction(t);
-            if (WPred.Hitchance >= HitChance.Low)
-            {
-                _w.Cast(WPred.CastPosition);
-            }
+            var t = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+            _w.Cast(t);
         }
         private static void Drawing_OnDraw(EventArgs args)
         {
@@ -329,7 +328,7 @@ namespace Lucian
             //Spells Range
             if (Qran.Active)
             {
-                Render.Circle.DrawCircle(ObjectManager.Player.Position, _q.Range, Qran.Color);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, 675, Qran.Color);
             }
             if (Qexran.Active)
             {
