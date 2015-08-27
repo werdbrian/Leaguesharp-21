@@ -87,45 +87,42 @@ namespace Lucian
                             var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range, MinionTypes.All, MinionTeam.NotAlly);
                             foreach (var minion in minions)
                             {
-                                //laneclear, mixed, lasthit certain champions + check mana
-                                if (cerh && (ObjectManager.Player.Mana/ObjectManager.Player.MaxMana)*100 > manh && (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit))
+                                if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit)
                                 {
-                                    if (_q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                                    if ((ObjectManager.Player.Mana/ObjectManager.Player.MaxMana)*100 > manh)
                                     {
-                                        _q2.CastOnUnit(minion);
+                                        //laneclear, mixed, lasthit certain champions + check mana
+                                        if (cerh && _q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                                        {
+                                            _q2.CastOnUnit(minion);
+                                        }
+                                        //laneclear, mixed, lasthit all champions + check mana
+                                        if (!cerha && _q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                                        {
+                                            _q2.CastOnUnit(minion);
+                                        }
                                     }
                                 }
-                                //laneclear, mixed, lasthit all champions + check mana
-                                if (!cerha && (ObjectManager.Player.Mana/ObjectManager.Player.MaxMana)*100 > manh && (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit))
+                                if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
                                 {
-                                    if (_q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                                    if ((ObjectManager.Player.Mana/ObjectManager.Player.MaxMana)*100 > manc)
                                     {
-                                        _q2.CastOnUnit(minion);
-                                    }
-                                }
-                                //combo certain champions + check mana
-                                if (useqex && cerc && (ObjectManager.Player.Mana/ObjectManager.Player.MaxMana)*100 > manc && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
-                                {
-                                    if (_q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
-                                    {
-                                        _q2.CastOnUnit(minion);
-                                    }
-                                }
-                                //combo all champions + check mana
-                                if (useqex && !cerco && (ObjectManager.Player.Mana/ObjectManager.Player.MaxMana)*100 > manc && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
-                                {
-                                    if (_q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
-                                    {
-                                        _q2.CastOnUnit(minion);
+                                        //combo certain champions + check mana
+                                        if (useqex && cerc && _q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                                        {
+                                            _q2.CastOnUnit(minion);
+                                        }
+                                        //combo all champions + check mana
+                                        if (useqex && !cerco && _q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                                        {
+                                            _q2.CastOnUnit(minion);
+                                        }
                                     }
                                 }
                                 //Q Extended killsteal
-                                if (ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) > target.Health && qkill)
+                                if (ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) > target.Health && qkill && _q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
                                 {
-                                    if (_q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
-                                    {
-                                        _q2.CastOnUnit(minion);
-                                    }
+                                    _q2.CastOnUnit(minion);
                                 }
                             }
                         }
@@ -136,13 +133,10 @@ namespace Lucian
                         }
                     }
                     //W killsteal
-                    if (wkill && _w.IsReady() && target.IsValidTarget(_w2.Range) && ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) > target.Health)
+                    var WPred = _w2.GetPrediction(target);
+                    if (wkill && _w.IsReady() && target.IsValidTarget(_w2.Range) && ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) > target.Health && WPred.Hitchance >= HitChance.High)
                     {
-                        var WPred = _w2.GetPrediction(target);
-                        if (WPred.Hitchance >= HitChance.High)
-                        {
-                            _w2.Cast(WPred.CastPosition);
-                        }
+                        _w2.Cast(WPred.CastPosition);
                     }
                 }
             }
