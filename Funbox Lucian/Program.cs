@@ -43,7 +43,6 @@ namespace Lucian
             _config.SubMenu("Combo").AddItem(new MenuItem("qcom", "Q").SetValue(true));
             _config.SubMenu("Combo").AddItem(new MenuItem("qexcom", "Q Extended").SetValue(true));
             _config.SubMenu("Combo").AddItem(new MenuItem("wcom", "W").SetValue(true));
-            _config.SubMenu("Combo").AddItem(new MenuItem("ecom", "E").SetValue(true));
             _config.SubMenu("Killsteal").AddItem(new MenuItem("qkil", "Q / Q Extended").SetValue(true));
             _config.SubMenu("Killsteal").AddItem(new MenuItem("wkil", "W").SetValue(true));
             _config.SubMenu("Harass").AddItem(new MenuItem("qexharhero", "Q Only Certain Champions").SetValue(true));
@@ -153,63 +152,82 @@ namespace Lucian
             var obj = (Obj_AI_Base) target;
             var quse = _config.Item("qcom").GetValue<bool>();
             var wuse = _config.Item("wcom").GetValue<bool>();
-            var euse = _config.Item("ecom").GetValue<bool>();
             var EMode =_config.Item("emod").GetValue<StringList>().SelectedIndex;
             var pos = Geometry.CircleCircleIntersection(ObjectManager.Player.ServerPosition.To2D(), Prediction.GetPrediction(obj, 0.25f).UnitPosition.To2D(), _e.Range, Orbwalking.GetRealAutoAttackRange(obj));
             if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
             {
                 if (t != null && t.IsValidTarget())
                 {
-                    if (euse)
+                    switch (EMode)
                     {
-                        switch (EMode)
-                        {
-                            //E Safe + Q Usage
-                            case 0:
-                                if (_e.IsReady())
+                        //E Safe
+                        case 0:
+                            //E Usage
+                            if (_e.IsReady())
+                            {
+                                if (pos.Count() > 0)
                                 {
-                                    if (pos.Count() > 0)
-                                    {
-                                        _e.Cast(pos.MinOrDefault(i => i.Distance(Game.CursorPos)));
-                                    }
-                                    else
-                                    {
-                                        _e.Cast(ObjectManager.Player.ServerPosition.Extend(obj.ServerPosition, -_e.Range));
-                                    }
+                                    _e.Cast(pos.MinOrDefault(i => i.Distance(Game.CursorPos)));
                                 }
-                                if (!_e.IsReady() && _q.IsReady() && quse)
+                                else
                                 {
-                                    _q.CastOnUnit(t);
+                                    _e.Cast(ObjectManager.Player.ServerPosition.Extend(obj.ServerPosition, -_e.Range));
                                 }
-                            break;
-                            //E To Mouse + Q Usage
-                            case 1:
-                                if (_e.IsReady())
+                            }
+                            //Q Usage
+                            if (!_e.IsReady() && _q.IsReady() && quse)
+                            {
+                                _q.CastOnUnit(t);
+                            }
+                            //W Usage
+                            if (!_q.IsReady() && !_e.IsReady() && _w.IsReady() && wuse)
+                            {
+                                var WPred = _w.GetPrediction(t);
+                                if (WPred.Hitchance >= HitChance.Low)
                                 {
-                                    _e.Cast(ObjectManager.Player.ServerPosition.Extend(Game.CursorPos, _e.Range));
+                                    _w.Cast(WPred.CastPosition);
                                 }
-                                if (!_e.IsReady() && _q.IsReady() && quse)
+                            }
+                        break;
+                        //E To Mouse
+                        case 1:
+                            //E Usage
+                            if (_e.IsReady())
+                            {
+                                _e.Cast(ObjectManager.Player.ServerPosition.Extend(Game.CursorPos, _e.Range));
+                            }
+                            //Q Usage
+                            if (!_e.IsReady() && _q.IsReady() && quse)
+                            {
+                                _q.CastOnUnit(t);
+                            }
+                            //W Usage
+                            if (!_q.IsReady() && !_e.IsReady() && _w.IsReady() && wuse)
+                            {
+                                var WPred = _w.GetPrediction(t);
+                                if (WPred.Hitchance >= HitChance.Low)
                                 {
-                                    _q.CastOnUnit(t);
+                                    _w.Cast(WPred.CastPosition);
                                 }
-                            break;
-                            //E None + Q Usage
-                            case 2:
-                                if (_q.IsReady() && quse)
+                            }
+                        break;
+                        //E None
+                        case 2:
+                            //Q Usage
+                            if (_q.IsReady() && quse)
+                            {
+                                _q.CastOnUnit(t);
+                            }
+                            //W Usage
+                            if (!_q.IsReady() && _w.IsReady() && wuse)
+                            {
+                                var WPred = _w.GetPrediction(t);
+                                if (WPred.Hitchance >= HitChance.Low)
                                 {
-                                    _q.CastOnUnit(t);
+                                    _w.Cast(WPred.CastPosition);
                                 }
-                            break;
-                        }
-                    }
-                    //W Usage
-                    if (!_q.IsReady() && _w.IsReady() && wuse)
-                    {
-                        var WPred = _w.GetPrediction(t);
-                        if (WPred.Hitchance >= HitChance.Low)
-                        {
-                            _w.Cast(WPred.CastPosition);
-                        }
+                            }
+                        break;
                     }
                     //BOTRK
                     if (t.Distance(ObjectManager.Player) < 550)
