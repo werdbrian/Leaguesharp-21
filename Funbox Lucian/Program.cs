@@ -61,8 +61,6 @@ namespace Lucian
             _config.SubMenu("Drawings").SubMenu("Spells").AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(true, Color.FromArgb(150, Color.DodgerBlue))));
             _config.SubMenu("Drawings").AddItem(new MenuItem("emodraw", "E Mode Text").SetValue(true));
             _config.SubMenu("Drawings").AddItem(new MenuItem("tdraw", "Active Enemy").SetValue(new Circle(true, Color.GreenYellow)));
-            _config.AddItem(new MenuItem("delsq", "Delay before Q").SetValue(new Slider(50, 70, 0)));
-            _config.AddItem(new MenuItem("delsw", "Delay before W").SetValue(new Slider(120, 140, 0)));
             _config.AddToMainMenu();
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnProcessSpellCast += oncast;
@@ -151,8 +149,6 @@ namespace Lucian
         {
             var enemy = TargetSelector.GetTarget(800, TargetSelector.DamageType.Physical);
             var obj = (Obj_AI_Base) target;
-            var delyq = _config.Item("delsq").GetValue<Slider>().Value;
-            var delyw = _config.Item("delsw").GetValue<Slider>().Value;
             var quse = _config.Item("qcom").GetValue<bool>();
             var wuse = _config.Item("wcom").GetValue<bool>();
             var botuse = _config.Item("Botrk").GetValue<bool>();
@@ -172,7 +168,7 @@ namespace Lucian
                     //W Usage
                     if (!_q.IsReady() && _w.IsReady() && wuse)
                     {
-                        Utility.DelayAction.Add(delyw, Wuse);
+                        _w.Cast(enemy);
                     }
                 }
                 if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
@@ -196,12 +192,12 @@ namespace Lucian
                             //Q Usage
                             if (!_e.IsReady() && _q.IsReady() && quse)
                             {
-                                Utility.DelayAction.Add(delyq, Quse);
+                                _q.CastOnUnit(enemy);
                             }
                             //W Usage
                             if (!_q.IsReady() && !_e.IsReady() && _w.IsReady() && wuse)
                             {
-                                Utility.DelayAction.Add(delyw, Wuse);
+                                _w.Cast(enemy);
                             }
                         break;
                         //E To Mouse
@@ -214,12 +210,12 @@ namespace Lucian
                             //Q Usage
                             if (!_e.IsReady() && _q.IsReady() && quse)
                             {
-                                Utility.DelayAction.Add(delyq, Quse);
+                                _q.CastOnUnit(enemy);
                             }
                             //W Usage
                             if (!_q.IsReady() && !_e.IsReady() && _w.IsReady() && wuse)
                             {
-                                Utility.DelayAction.Add(delyw, Wuse);
+                                _w.Cast(enemy);
                             }
                         break;
                         //E None
@@ -232,7 +228,7 @@ namespace Lucian
                             //W Usage
                             if (!_q.IsReady() && _w.IsReady() && wuse)
                             {
-                                Utility.DelayAction.Add(delyw, Wuse);
+                                _w.Cast(enemy);
                             }
                         break;
                     }
@@ -291,24 +287,6 @@ namespace Lucian
                     _config.Item("emod").SetValue(new StringList(new[]{"Safe", "To mouse", "None"}));
                     _lastTick = Environment.TickCount + 300;
                 break;
-            }
-        }
-        //Q usage
-        private static void Quse()
-        {
-            var tq = TargetSelector.GetTarget(675, TargetSelector.DamageType.Physical);
-            if (tq != null && tq.IsValidTarget())
-            {
-                _q.CastOnUnit(tq);
-            }
-        }
-        //W usage
-        private static void Wuse()
-        {
-            var tw = TargetSelector.GetTarget(800, TargetSelector.DamageType.Physical);
-            if (tw != null && tw.IsValidTarget())
-            {
-                _w.Cast(tw);
             }
         }
         private static void Drawing_OnDraw(EventArgs args)
