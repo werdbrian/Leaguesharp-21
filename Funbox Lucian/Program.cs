@@ -158,25 +158,37 @@ namespace Lucian
             var pos = Geometry.CircleCircleIntersection(ObjectManager.Player.ServerPosition.To2D(), Prediction.GetPrediction(obj, 0.25f).UnitPosition.To2D(), _e.Range, Orbwalking.GetRealAutoAttackRange(obj));
             if (t != null && t.IsValidTarget())
             {
-                switch (EMode)
+                if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
                 {
-                    //E Safe
-                    case 0:
-                    
-                        //E Usage
-                        if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && _e.IsReady())
-                        {
-                            if (pos.Count() > 0)
+                    //Q Usage
+                    if (_q.IsReady() && quse)
+                    {
+                        _q.CastOnUnit(t);
+                    }
+                    //W Usage
+                    if (!_q.IsReady() && _w.IsReady() && wuse)
+                    {
+                        Utility.DelayAction.Add(dely, Wuse);
+                    }
+                }
+                if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
+                {
+                    switch (EMode)
+                    {
+                        //E Safe
+                        case 0:
+                            //E Usage
+                            if (_e.IsReady())
                             {
-                                _e.Cast(pos.MinOrDefault(i => i.Distance(Game.CursorPos)));
+                                if (pos.Count() > 0)
+                                {
+                                    _e.Cast(pos.MinOrDefault(i => i.Distance(Game.CursorPos)));
+                                }
+                                else
+                                {
+                                    _e.Cast(ObjectManager.Player.ServerPosition.Extend(obj.ServerPosition, -_e.Range));
+                                }
                             }
-                            else
-                            {
-                                _e.Cast(ObjectManager.Player.ServerPosition.Extend(obj.ServerPosition, -_e.Range));
-                            }
-                        }
-                        if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
-                        {
                             //Q Usage
                             if (!_e.IsReady() && _q.IsReady() && quse)
                             {
@@ -187,17 +199,14 @@ namespace Lucian
                             {
                                 Utility.DelayAction.Add(dely, Wuse);
                             }
-                        }
-                    break;
-                    //E To Mouse
-                    case 1:
-                        //E Usage
-                        if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo && _e.IsReady())
-                        {
-                            _e.Cast(ObjectManager.Player.ServerPosition.Extend(Game.CursorPos, _e.Range));
-                        }
-                        if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
-                        {
+                        break;
+                        //E To Mouse
+                        case 1:
+                            //E Usage
+                            if (_e.IsReady())
+                            {
+                                _e.Cast(ObjectManager.Player.ServerPosition.Extend(Game.CursorPos, _e.Range));
+                            }
                             //Q Usage
                             if (!_e.IsReady() && _q.IsReady() && quse)
                             {
@@ -208,12 +217,9 @@ namespace Lucian
                             {
                                 Utility.DelayAction.Add(dely, Wuse);
                             }
-                        }
-                    break;
-                    //E None
-                    case 2:
-                        if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
-                        {
+                        break;
+                        //E None
+                        case 2:
                             //Q Usage
                             if (_q.IsReady() && quse)
                             {
@@ -224,14 +230,14 @@ namespace Lucian
                             {
                                 Utility.DelayAction.Add(dely, Wuse);
                             }
-                        }
-                    break;
-                }
-                //BOTRK
-                if (t.Distance(ObjectManager.Player) < 550)
-                {
-                    Items.UseItem(3144, t);
-                    Items.UseItem(3153, t);
+                        break;
+                    }
+                    //BOTRK
+                    if (t.Distance(ObjectManager.Player) < 550)
+                    {
+                        Items.UseItem(3144, t);
+                        Items.UseItem(3153, t);
+                    }
                 }
             }
         }
