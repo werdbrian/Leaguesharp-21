@@ -25,7 +25,7 @@ namespace Lucian
             }
             _q = new Spell(SpellSlot.Q, 675);
             _q2 = new Spell(SpellSlot.Q, 1150);
-            _w = new Spell(SpellSlot.W, 800);
+            _w = new Spell(SpellSlot.W, 700);
             _w2 = new Spell(SpellSlot.W, 1000);
             _e = new Spell(SpellSlot.E, 425);
             _q2.SetSkillshot(0.25f, 70, 3000, false, SkillshotType.SkillshotLine);
@@ -147,7 +147,7 @@ namespace Lucian
         }
         private static void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-            var enemy = TargetSelector.GetTarget(800, TargetSelector.DamageType.Physical);
+            var enemy = TargetSelector.GetTarget(700, TargetSelector.DamageType.Physical);
             var obj = (Obj_AI_Base) target;
             var quse = _config.Item("qcom").GetValue<bool>();
             var wuse = _config.Item("wcom").GetValue<bool>();
