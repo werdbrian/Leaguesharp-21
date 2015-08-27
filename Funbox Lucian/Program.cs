@@ -56,6 +56,7 @@ namespace Lucian
             _config.SubMenu("Drawings").SubMenu("Spells").AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(true, Color.FromArgb(150, Color.DodgerBlue))));
             _config.SubMenu("Drawings").AddItem(new MenuItem("emodraw", "E Mode Text").SetValue(true));
             _config.SubMenu("Drawings").AddItem(new MenuItem("tdraw", "Active Enemy").SetValue(new Circle(true, Color.GreenYellow)));
+            _config.AddItem(new MenuItem("dels", "Delay before spell").SetValue(new Slider(100, 200, 0)));
             _config.AddToMainMenu();
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnProcessSpellCast += oncast;
@@ -150,6 +151,7 @@ namespace Lucian
         {
             var t = TargetSelector.GetTarget(700, TargetSelector.DamageType.Physical);
             var obj = (Obj_AI_Base) target;
+            var dely = _config.Item("dels").GetValue<Slider>().Value;
             var quse = _config.Item("qcom").GetValue<bool>();
             var wuse = _config.Item("wcom").GetValue<bool>();
             var EMode =_config.Item("emod").GetValue<StringList>().SelectedIndex;
@@ -177,16 +179,12 @@ namespace Lucian
                             //Q Usage
                             if (!_e.IsReady() && _q.IsReady() && quse)
                             {
-                                _q.CastOnUnit(t);
+                                Utility.DelayAction.Add(dely, Quse);
                             }
                             //W Usage
                             if (!_q.IsReady() && !_e.IsReady() && _w.IsReady() && wuse)
                             {
-                                var WPred = _w.GetPrediction(t);
-                                if (WPred.Hitchance >= HitChance.Low)
-                                {
-                                    _w.Cast(WPred.CastPosition);
-                                }
+                                Utility.DelayAction.Add(dely, Wuse);
                             }
                         break;
                         //E To Mouse
@@ -199,16 +197,12 @@ namespace Lucian
                             //Q Usage
                             if (!_e.IsReady() && _q.IsReady() && quse)
                             {
-                                _q.CastOnUnit(t);
+                                Utility.DelayAction.Add(dely, Quse);
                             }
                             //W Usage
                             if (!_q.IsReady() && !_e.IsReady() && _w.IsReady() && wuse)
                             {
-                                var WPred = _w.GetPrediction(t);
-                                if (WPred.Hitchance >= HitChance.Low)
-                                {
-                                    _w.Cast(WPred.CastPosition);
-                                }
+                                Utility.DelayAction.Add(dely, Wuse);
                             }
                         break;
                         //E None
@@ -221,11 +215,7 @@ namespace Lucian
                             //W Usage
                             if (!_q.IsReady() && _w.IsReady() && wuse)
                             {
-                                var WPred = _w.GetPrediction(t);
-                                if (WPred.Hitchance >= HitChance.Low)
-                                {
-                                    _w.Cast(WPred.CastPosition);
-                                }
+                                Utility.DelayAction.Add(dely, Wuse);
                             }
                         break;
                     }
@@ -274,6 +264,22 @@ namespace Lucian
                     _config.Item("emod").SetValue(new StringList(new[]{"Safe", "To mouse", "None"}));
                     _lastTick = Environment.TickCount + 300;
                 break;
+            }
+        }
+        //Q usage
+        private static void Quse()
+        {
+            var t = TargetSelector.GetTarget(700, TargetSelector.DamageType.Physical);
+            _q.CastOnUnit(t);
+        }
+        //W usage
+        private static void Wuse()
+        {
+            var t = TargetSelector.GetTarget(700, TargetSelector.DamageType.Physical);
+            var WPred = _w.GetPrediction(t);
+            if (WPred.Hitchance >= HitChance.Low)
+            {
+                _w.Cast(WPred.CastPosition);
             }
         }
         private static void Drawing_OnDraw(EventArgs args)
