@@ -11,6 +11,7 @@ namespace Lucian
         private static Orbwalking.Orbwalker _orbwalker;
         private static Spell _q, _q2, _w, _w2, _e;
         private static int _lastTick;
+        private static Items.Item _botrk = new Items.Item(3153, 550f), _cutlass = new Items.Item(3144, 550f), _youmuus = new Items.Item(3142, 550f);
         private static string[] select = {"Ashe", "Caitlyn", "Corki", "Draven", "Ezreal", "Graves", "Jinx", "Kalista", "KogMaw", "Lucian", "MissFortune","Quinn","Sivir","Teemo","Tristana","TwistedFate","Twitch","Urgot","Varus","Vayne"};
         private static void Main(string[] args)
         {
@@ -44,6 +45,9 @@ namespace Lucian
             _config.SubMenu("Combo").AddItem(new MenuItem("qcom", "Q").SetValue(true));
             _config.SubMenu("Combo").AddItem(new MenuItem("qexcom", "Q Extended").SetValue(true));
             _config.SubMenu("Combo").AddItem(new MenuItem("wcom", "W").SetValue(true));
+            _config.SubMenu("Combo").SubMenu("Items").SubMenu("Botrk").AddItem(new MenuItem("Botrk", "Botrk").SetValue(true));
+            _config.SubMenu("Combo").SubMenu("Items").SubMenu("Cutlass").AddItem(new MenuItem("Cutlass", "Cutlass").SetValue(true));
+            _config.SubMenu("Combo").SubMenu("Items").SubMenu("Youmuus").AddItem(new MenuItem("Youmuus", "Youmuus").SetValue(true));
             _config.SubMenu("Killsteal").AddItem(new MenuItem("qkil", "Q / Q Extended").SetValue(true));
             _config.SubMenu("Killsteal").AddItem(new MenuItem("wkil", "W").SetValue(true));
             _config.SubMenu("Harass").AddItem(new MenuItem("qexharhero", "Q Only Certain Champions").SetValue(true));
@@ -151,6 +155,9 @@ namespace Lucian
             var delyw = _config.Item("delsw").GetValue<Slider>().Value;
             var quse = _config.Item("qcom").GetValue<bool>();
             var wuse = _config.Item("wcom").GetValue<bool>();
+            var botuse = _config.Item("Botrk").GetValue<bool>();
+            var cutuse = _config.Item("Cutlass").GetValue<bool>();
+            var youuse = _config.Item("Youmuus").GetValue<bool>();
             var EMode =_config.Item("emod").GetValue<StringList>().SelectedIndex;
             var pos = Geometry.CircleCircleIntersection(ObjectManager.Player.ServerPosition.To2D(), Prediction.GetPrediction(obj, 0.25f).UnitPosition.To2D(), _e.Range, Orbwalking.GetRealAutoAttackRange(obj));
             if (enemy != null && enemy.IsValidTarget())
@@ -189,7 +196,7 @@ namespace Lucian
                             //Q Usage
                             if (!_e.IsReady() && _q.IsReady() && quse)
                             {
-                              Utility.DelayAction.Add(delyq, Quse);
+                                Utility.DelayAction.Add(delyq, Quse);
                             }
                             //W Usage
                             if (!_q.IsReady() && !_e.IsReady() && _w.IsReady() && wuse)
@@ -207,7 +214,7 @@ namespace Lucian
                             //Q Usage
                             if (!_e.IsReady() && _q.IsReady() && quse)
                             {
-                              Utility.DelayAction.Add(delyq, Quse);
+                                Utility.DelayAction.Add(delyq, Quse);
                             }
                             //W Usage
                             if (!_q.IsReady() && !_e.IsReady() && _w.IsReady() && wuse)
@@ -229,11 +236,21 @@ namespace Lucian
                             }
                         break;
                     }
-                    //BOTRK
                     if (enemy.Distance(ObjectManager.Player) < 550)
                     {
-                        Items.UseItem(3144, enemy);
-                        Items.UseItem(3153, enemy);
+                        //ITEMS
+                        if (_botrk.IsReady() && botuse)
+                        {
+                            _botrk.Cast(enemy);
+                        }
+                        if (_cutlass.IsReady() && cutuse)
+                        {
+                            _cutlass.Cast(enemy);
+                        }
+                        if (_youmuus.IsReady() && youuse)
+                        {
+                            _youmuus.Cast();
+                        }
                     }
                 }
             }
