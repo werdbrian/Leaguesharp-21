@@ -280,13 +280,19 @@ namespace Lucian
         private static void Quse()
         {
             var t = TargetSelector.GetTarget(675, TargetSelector.DamageType.Physical);
-            _q.CastOnUnit(t);
+            if (t != null && t.IsValidTarget())
+            {
+                _q.CastOnUnit(t);
+            }
         }
         //W usage
         private static void Wuse()
         {
             var t = TargetSelector.GetTarget(800, TargetSelector.DamageType.Physical);
-            _w.Cast(t);
+            if (t != null && t.IsValidTarget())
+            {
+                _w.Cast(t);
+            }
         }
         private static void Drawing_OnDraw(EventArgs args)
         {
