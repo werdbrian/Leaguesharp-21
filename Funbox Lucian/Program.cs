@@ -22,9 +22,9 @@ namespace Lucian
             {
                 return;
             }
-            _q = new Spell(SpellSlot.Q, 750);
+            _q = new Spell(SpellSlot.Q, 725);
             _q2 = new Spell(SpellSlot.Q, 1150);
-            _w = new Spell(SpellSlot.W, 750);
+            _w = new Spell(SpellSlot.W, 800);
             _w2 = new Spell(SpellSlot.W, 1000);
             _e = new Spell(SpellSlot.E, 425);
             _q2.SetSkillshot(0.25f, 70, 3000, false, SkillshotType.SkillshotLine);
@@ -145,7 +145,7 @@ namespace Lucian
         }
         private static void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-            var t = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+            var t = TargetSelector.GetTarget(800, TargetSelector.DamageType.Physical);
             var obj = (Obj_AI_Base) target;
             var delyq = _config.Item("delsq").GetValue<Slider>().Value;
             var delyw = _config.Item("delsw").GetValue<Slider>().Value;
@@ -279,13 +279,13 @@ namespace Lucian
         //Q usage
         private static void Quse()
         {
-            var t = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+            var t = TargetSelector.GetTarget(725, TargetSelector.DamageType.Physical);
             _q.CastOnUnit(t);
         }
         //W usage
         private static void Wuse()
         {
-            var t = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+            var t = TargetSelector.GetTarget(800, TargetSelector.DamageType.Physical);
             _w.Cast(t);
         }
         private static void Drawing_OnDraw(EventArgs args)
