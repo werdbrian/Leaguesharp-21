@@ -57,8 +57,8 @@ namespace Lucian
             _config.SubMenu("Drawings").SubMenu("Spells").AddItem(new MenuItem("RRange", "R range").SetValue(new Circle(true, Color.FromArgb(150, Color.DodgerBlue))));
             _config.SubMenu("Drawings").AddItem(new MenuItem("emodraw", "E Mode Text").SetValue(true));
             _config.SubMenu("Drawings").AddItem(new MenuItem("tdraw", "Active Enemy").SetValue(new Circle(true, Color.GreenYellow)));
-            _config.AddItem(new MenuItem("delsq", "Delay before Q").SetValue(new Slider(50, 70, 30)));
-            _config.AddItem(new MenuItem("delsw", "Delay before W").SetValue(new Slider(120, 140, 100)));
+            _config.AddItem(new MenuItem("delsq", "Delay before Q").SetValue(new Slider(50, 70, 0)));
+            _config.AddItem(new MenuItem("delsw", "Delay before W").SetValue(new Slider(120, 140, 0)));
             _config.AddToMainMenu();
             Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnProcessSpellCast += oncast;
