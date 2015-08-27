@@ -145,7 +145,7 @@ namespace Lucian
         }
         private static void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
-            var t = TargetSelector.GetTarget(800, TargetSelector.DamageType.Physical);
+            var enemy = TargetSelector.GetTarget(800, TargetSelector.DamageType.Physical);
             var obj = (Obj_AI_Base) target;
             var delyq = _config.Item("delsq").GetValue<Slider>().Value;
             var delyw = _config.Item("delsw").GetValue<Slider>().Value;
@@ -153,14 +153,14 @@ namespace Lucian
             var wuse = _config.Item("wcom").GetValue<bool>();
             var EMode =_config.Item("emod").GetValue<StringList>().SelectedIndex;
             var pos = Geometry.CircleCircleIntersection(ObjectManager.Player.ServerPosition.To2D(), Prediction.GetPrediction(obj, 0.25f).UnitPosition.To2D(), _e.Range, Orbwalking.GetRealAutoAttackRange(obj));
-            if (t != null && t.IsValidTarget())
+            if (enemy != null && enemy.IsValidTarget())
             {
                 if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
                 {
                     //Q Usage
                     if (_q.IsReady() && quse)
                     {
-                        _q.CastOnUnit(t);
+                        _q.CastOnUnit(enemy);
                     }
                     //W Usage
                     if (!_q.IsReady() && _w.IsReady() && wuse)
@@ -220,7 +220,7 @@ namespace Lucian
                             //Q Usage
                             if (_q.IsReady() && quse)
                             {
-                                _q.CastOnUnit(t);
+                                _q.CastOnUnit(enemy);
                             }
                             //W Usage
                             if (!_q.IsReady() && _w.IsReady() && wuse)
@@ -230,10 +230,10 @@ namespace Lucian
                         break;
                     }
                     //BOTRK
-                    if (t.Distance(ObjectManager.Player) < 550)
+                    if (enemy.Distance(ObjectManager.Player) < 550)
                     {
-                        Items.UseItem(3144, t);
-                        Items.UseItem(3153, t);
+                        Items.UseItem(3144, enemy);
+                        Items.UseItem(3153, enemy);
                     }
                 }
             }
@@ -279,19 +279,19 @@ namespace Lucian
         //Q usage
         private static void Quse()
         {
-            var t = TargetSelector.GetTarget(675, TargetSelector.DamageType.Physical);
-            if (t != null && t.IsValidTarget())
+            var tq = TargetSelector.GetTarget(675, TargetSelector.DamageType.Physical);
+            if (tq != null && tq.IsValidTarget())
             {
-                _q.CastOnUnit(t);
+                _q.CastOnUnit(tq);
             }
         }
         //W usage
         private static void Wuse()
         {
-            var t = TargetSelector.GetTarget(800, TargetSelector.DamageType.Physical);
-            if (t != null && t.IsValidTarget())
+            var tw = TargetSelector.GetTarget(800, TargetSelector.DamageType.Physical);
+            if (tw != null && tw.IsValidTarget())
             {
-                _w.Cast(t);
+                _w.Cast(tw);
             }
         }
         private static void Drawing_OnDraw(EventArgs args)
