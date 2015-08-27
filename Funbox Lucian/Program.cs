@@ -22,7 +22,7 @@ namespace Lucian
             {
                 return;
             }
-            _q = new Spell(SpellSlot.Q, 725);
+            _q = new Spell(SpellSlot.Q, 675);
             _q2 = new Spell(SpellSlot.Q, 1150);
             _w = new Spell(SpellSlot.W, 800);
             _w2 = new Spell(SpellSlot.W, 1000);
@@ -279,7 +279,7 @@ namespace Lucian
         //Q usage
         private static void Quse()
         {
-            var t = TargetSelector.GetTarget(725, TargetSelector.DamageType.Physical);
+            var t = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
             _q.CastOnUnit(t);
         }
         //W usage
