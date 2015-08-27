@@ -279,7 +279,7 @@ namespace Lucian
         //Q usage
         private static void Quse()
         {
-            var t = TargetSelector.GetTarget(750, TargetSelector.DamageType.Physical);
+            var t = TargetSelector.GetTarget(675, TargetSelector.DamageType.Physical);
             _q.CastOnUnit(t);
         }
         //W usage
