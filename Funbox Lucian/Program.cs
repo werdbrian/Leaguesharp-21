@@ -81,14 +81,14 @@ namespace Lucian
             {
                 var cerh = _config.Item("autohar" + target.ChampionName).GetValue<bool>();
                 var cerc = _config.Item("autocom" + target.ChampionName).GetValue<bool>();
-                if (target != null && target.IsValidTarget(_q2.Range))
+                if (target != null && target.IsValidTarget(1150))
                 {
                     if (_q.IsReady())
                     {
                         //Q Extended logic
-                        if (target.Distance(ObjectManager.Player) > _q.Range)
+                        if (target.Distance(ObjectManager.Player) > 675)
                         {
-                            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range, MinionTypes.All, MinionTeam.NotAlly);
+                            var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 675, MinionTypes.All, MinionTeam.NotAlly);
                             foreach (var minion in minions)
                             {
                                 if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit)
@@ -96,12 +96,12 @@ namespace Lucian
                                     if ((ObjectManager.Player.Mana/ObjectManager.Player.MaxMana)*100 > manh)
                                     {
                                         //laneclear, mixed, lasthit certain champions + check mana
-                                        if (cerh && _q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                                        if (cerh && _q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, 1150), 0, HitChance.VeryHigh))
                                         {
                                             _q2.CastOnUnit(minion);
                                         }
                                         //laneclear, mixed, lasthit all champions + check mana
-                                        if (!cerha && _q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                                        if (!cerha && _q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, 1150), 0, HitChance.VeryHigh))
                                         {
                                             _q2.CastOnUnit(minion);
                                         }
@@ -112,26 +112,26 @@ namespace Lucian
                                     if ((ObjectManager.Player.Mana/ObjectManager.Player.MaxMana)*100 > manc)
                                     {
                                         //combo certain champions + check mana
-                                        if (useqex && cerc && _q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                                        if (useqex && cerc && _q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, 1150), 0, HitChance.VeryHigh))
                                         {
                                             _q2.CastOnUnit(minion);
                                         }
                                         //combo all champions + check mana
-                                        if (useqex && !cerco && _q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                                        if (useqex && !cerco && _q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, 1150), 0, HitChance.VeryHigh))
                                         {
                                             _q2.CastOnUnit(minion);
                                         }
                                     }
                                 }
                                 //Q Extended killsteal
-                                if (ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) > target.Health && qkill && _q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, _q2.Range), 0, HitChance.VeryHigh))
+                                if (ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) > target.Health && qkill && _q2.WillHit(target, ObjectManager.Player.ServerPosition.Extend(minion.ServerPosition, 1150), 0, HitChance.VeryHigh))
                                 {
                                     _q2.CastOnUnit(minion);
                                 }
                             }
                         }
                         //Q killsteal
-                        if (target.Distance(ObjectManager.Player) <= _q.Range)
+                        if (target.Distance(ObjectManager.Player) <= 675)
                         {
                             if (qkill && ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) > target.Health)
                             {
@@ -140,7 +140,7 @@ namespace Lucian
                         }
                     }
                     //W killsteal
-                    if (_w.IsReady() && target.Distance(ObjectManager.Player) <= _w2.Range)
+                    if (_w.IsReady() && target.Distance(ObjectManager.Player) <= 1000)
                     {
                         if (wkill && ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) > target.Health)
                         {
@@ -164,7 +164,7 @@ namespace Lucian
             var cutuse = _config.Item("Cutlass").GetValue<bool>();
             var youuse = _config.Item("Youmuus").GetValue<bool>();
             var EMode =_config.Item("emod").GetValue<StringList>().SelectedIndex;
-            var pos = Geometry.CircleCircleIntersection(ObjectManager.Player.ServerPosition.To2D(), Prediction.GetPrediction(obj, 0.25f).UnitPosition.To2D(), _e.Range, Orbwalking.GetRealAutoAttackRange(obj));
+            var pos = Geometry.CircleCircleIntersection(ObjectManager.Player.ServerPosition.To2D(), Prediction.GetPrediction(obj, 0.25f).UnitPosition.To2D(), 425, Orbwalking.GetRealAutoAttackRange(obj));
             if (enemy != null && enemy.IsValidTarget())
             {
                 if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
@@ -195,7 +195,7 @@ namespace Lucian
                                 }
                                 else
                                 {
-                                    _e.Cast(ObjectManager.Player.ServerPosition.Extend(obj.ServerPosition, -_e.Range));
+                                    _e.Cast(ObjectManager.Player.ServerPosition.Extend(obj.ServerPosition, -425));
                                 }
                             }
                             //Q Usage
@@ -214,7 +214,7 @@ namespace Lucian
                             //E Usage
                             if (_e.IsReady())
                             {
-                                _e.Cast(ObjectManager.Player.ServerPosition.Extend(Game.CursorPos, _e.Range));
+                                _e.Cast(ObjectManager.Player.ServerPosition.Extend(Game.CursorPos, 425));
                             }
                             //Q Usage
                             if (!_e.IsReady() && _q.IsReady() && quse)
