@@ -81,12 +81,12 @@ namespace Lucian
             {
                 var cerh = _config.Item("autohar" + target.ChampionName).GetValue<bool>();
                 var cerc = _config.Item("autocom" + target.ChampionName).GetValue<bool>();
-                if (target != null)
+                if (target != null && target.IsValidTarget(_q2.Range))
                 {
                     if (_q.IsReady())
                     {
                         //Q Extended logic
-                        if (target.IsValidTarget(_q2.Range) && target.Distance(ObjectManager.Player) > _q.Range)
+                        if (target.Distance(ObjectManager.Player) > _q.Range)
                         {
                             var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, _q.Range, MinionTypes.All, MinionTeam.NotAlly);
                             foreach (var minion in minions)
@@ -131,16 +131,25 @@ namespace Lucian
                             }
                         }
                         //Q killsteal
-                        if (qkill && target.IsValidTarget(_q.Range) && ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) > target.Health)
+                        if (target.Distance(ObjectManager.Player) <= _q.Range)
                         {
-                            _q.CastOnUnit(target);
+                            if (qkill && ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) > target.Health)
+                            {
+                                _q.CastOnUnit(target);
+                            }
                         }
                     }
                     //W killsteal
-                    var WPred = _w2.GetPrediction(target);
-                    if (wkill && _w.IsReady() && target.IsValidTarget(_w2.Range) && ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) > target.Health && WPred.Hitchance >= HitChance.High)
+                    if (_w.IsReady() && target.Distance(ObjectManager.Player) <= _w2.Range)
                     {
-                        _w2.Cast(WPred.CastPosition);
+                        if (wkill && ObjectManager.Player.GetSpellDamage(target, SpellSlot.W) > target.Health)
+                        {
+                            var WPred = _w2.GetPrediction(target);
+                            if (WPred.Hitchance >= HitChance.High)
+                            {
+                                _w2.Cast(WPred.CastPosition);
+                            }
+                        }
                     }
                 }
             }
