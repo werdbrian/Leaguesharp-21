@@ -15,9 +15,9 @@ namespace Lucian
         private static Spell _w = new Spell(SpellSlot.W);
         private static Spell _w2 = new Spell(SpellSlot.W);
         private static Spell _e = new Spell(SpellSlot.E);
-        private static Items.Item _botrk = new Items.Item(3153);
-        private static Items.Item _cutlass = new Items.Item(3144);
-        private static Items.Item _youmuus = new Items.Item(3142);
+        private static Items.Item _botrk = new Items.Item(3153, 550f);
+        private static Items.Item _cutlass = new Items.Item(3144, 550f);
+        private static Items.Item _youmuus = new Items.Item(3142, 550f);
         private static string[] select = {"Ashe", "Caitlyn", "Corki", "Draven", "Ezreal", "Graves", "Jinx", "Kalista", "KogMaw", "Lucian", "MissFortune","Quinn","Sivir","Teemo","Tristana","TwistedFate","Twitch","Urgot","Varus","Vayne"};
         private static void Main(string[] args)
         {
