@@ -38,7 +38,7 @@ namespace Lucian
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
             TargetSelector.AddToMenu(targetSelectorMenu);
             _config.AddSubMenu(targetSelectorMenu);
-            _config.SubMenu("Combo").SubMenu("Q Extended settings").AddItem(new MenuItem("qexcomhero", "Q Only Certain Champions").SetValue(true));
+            _config.SubMenu("Combo").SubMenu("Q Extended settings").AddItem(new MenuItem("qexcomhero", "Q Only Certain Champions").SetValue(false));
             foreach (var hero in HeroManager.Enemies) { _config.SubMenu("Combo").SubMenu("Q Extended settings").SubMenu("Certain Champions").AddItem(new MenuItem("autocom" + hero.ChampionName, hero.ChampionName).SetValue(select.Contains(hero.ChampionName))); }
             _config.SubMenu("Combo").SubMenu("Q Extended settings").AddItem(new MenuItem("manac", "Mana").SetValue(new Slider(33, 100, 0)));
             _config.SubMenu("Combo").SubMenu("E settings").AddItem(new MenuItem("emodswitch", "Switch Key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
