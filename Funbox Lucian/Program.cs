@@ -15,9 +15,6 @@ namespace Lucian
         private static Spell _w = new Spell(SpellSlot.W);
         private static Spell _w2 = new Spell(SpellSlot.W);
         private static Spell _e = new Spell(SpellSlot.E);
-        private static Items.Item _botrk = new Items.Item(3153, 550f);
-        private static Items.Item _cutlass = new Items.Item(3144, 550f);
-        private static Items.Item _youmuus = new Items.Item(3142, 550f);
         private static string[] select = {"Ashe", "Caitlyn", "Corki", "Draven", "Ezreal", "Graves", "Jinx", "Kalista", "KogMaw", "Lucian", "MissFortune","Quinn","Sivir","Teemo","Tristana","TwistedFate","Twitch","Urgot","Varus","Vayne"};
         private static void Main(string[] args)
         {
@@ -247,17 +244,17 @@ namespace Lucian
                     }
                     if (enemy.Distance(ObjectManager.Player) < 550)
                     {
-                        if (_botrk.IsReady() && botuse)
+                        if (botuse && Items.HasItem(3153) && Items.CanUseItem(3153))
                         {
-                            _botrk.Cast(enemy);
+                            Items.UseItem(3153, enemy);
                         }
-                        if (_cutlass.IsReady() && cutuse)
+                        if (cutuse && Items.HasItem(3144) && Items.CanUseItem(3144))
                         {
-                            _cutlass.Cast(enemy);
+                            Items.UseItem(3144, enemy);
                         }
-                        if (_youmuus.IsReady() && youuse)
+                        if (youuse && Items.HasItem(3142) && Items.CanUseItem(3142))
                         {
-                            _youmuus.Cast();
+                            Items.UseItem(3142);
                         }
                     }
                 }
