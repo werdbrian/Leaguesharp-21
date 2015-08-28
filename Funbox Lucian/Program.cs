@@ -62,10 +62,23 @@ namespace Lucian
             _config.SubMenu("Drawings").AddItem(new MenuItem("emodraw", "E Mode Text").SetValue(true));
             _config.SubMenu("Drawings").AddItem(new MenuItem("tdraw", "Active Enemy").SetValue(new Circle(true, Color.GreenYellow)));
             _config.AddToMainMenu();
-            Drawing.OnDraw += Drawing_OnDraw;
             Obj_AI_Base.OnProcessSpellCast += oncast;
-            Orbwalking.AfterAttack += Orbwalking_AfterAttack;
             Game.OnUpdate += Game_OnUpdate;
+            Orbwalking.AfterAttack += Orbwalking_AfterAttack;
+            Drawing.OnDraw += Drawing_OnDraw;
+        }
+        //Reset Auto Attack After Spells
+        private static void oncast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+            var spell = args.SData;
+            if (!sender.IsMe)
+            {
+                return;
+            }
+            if (spell.Name.ToLower().Contains("lucianq") || spell.Name.ToLower().Contains("lucianw") || spell.Name.ToLower().Contains("luciane"))
+            {
+                Utility.DelayAction.Add(450, Orbwalking.ResetAutoAttackTimer);
+            }
         }
         private static void Game_OnUpdate(EventArgs args)
         {
@@ -260,44 +273,6 @@ namespace Lucian
                 }
             }
         }
-        //Reset Auto Attack After Spells
-        private static void oncast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
-        {
-            var spell = args.SData;
-            if (!sender.IsMe)
-            {
-                return;
-            }
-            if (spell.Name.ToLower().Contains("lucianq") || spell.Name.ToLower().Contains("lucianw") || spell.Name.ToLower().Contains("luciane"))
-            {
-                Utility.DelayAction.Add(450, Orbwalking.ResetAutoAttackTimer);
-            }
-        }
-        //E Mode Switch
-        private static void Emode()
-        {
-            var lasttime = Environment.TickCount - _lastTick;
-            var EMode = _config.Item("emod").GetValue<StringList>().SelectedIndex;
-            if (!_config.Item("emodswitch").GetValue<KeyBind>().Active || lasttime <= Game.Ping)
-            {
-                return;
-            }
-            switch (EMode)
-            {
-                case 0:
-                    _config.Item("emod").SetValue(new StringList(new[]{"Safe", "To mouse", "None"}, 1));
-                    _lastTick = Environment.TickCount + 300;
-                break;
-                case 1:
-                    _config.Item("emod").SetValue(new StringList(new[]{"Safe", "To mouse", "None"}, 2));
-                    _lastTick = Environment.TickCount + 300;
-                break;
-                case 2:
-                    _config.Item("emod").SetValue(new StringList(new[]{"Safe", "To mouse", "None"}));
-                    _lastTick = Environment.TickCount + 300;
-                break;
-            }
-        }
         private static void Drawing_OnDraw(EventArgs args)
         {
             var wts = Drawing.WorldToScreen(ObjectManager.Player.Position);
@@ -359,6 +334,31 @@ namespace Lucian
             if (Rran.Active)
             {
                 Render.Circle.DrawCircle(ObjectManager.Player.Position, 1400, Rran.Color);
+            }
+        }
+        //E Mode Switch
+        private static void Emode()
+        {
+            var lasttime = Environment.TickCount - _lastTick;
+            var EMode = _config.Item("emod").GetValue<StringList>().SelectedIndex;
+            if (!_config.Item("emodswitch").GetValue<KeyBind>().Active || lasttime <= Game.Ping)
+            {
+                return;
+            }
+            switch (EMode)
+            {
+                case 0:
+                    _config.Item("emod").SetValue(new StringList(new[]{"Safe", "To mouse", "None"}, 1));
+                    _lastTick = Environment.TickCount + 300;
+                break;
+                case 1:
+                    _config.Item("emod").SetValue(new StringList(new[]{"Safe", "To mouse", "None"}, 2));
+                    _lastTick = Environment.TickCount + 300;
+                break;
+                case 2:
+                    _config.Item("emod").SetValue(new StringList(new[]{"Safe", "To mouse", "None"}));
+                    _lastTick = Environment.TickCount + 300;
+                break;
             }
         }
     }
