@@ -342,19 +342,19 @@ namespace Lucian
             }
             if (Qexran.Active)
             {
-                Render.Circle.DrawCircle(ObjectManager.Player.Position, _q2.Range, Qexran.Color);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, 1150, Qexran.Color);
             }
             if (Wran.Active)
             {
-                Render.Circle.DrawCircle(ObjectManager.Player.Position, _w2.Range, Wran.Color);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, 1000, Wran.Color);
             }
             if (Eran.Active)
             {
-                Render.Circle.DrawCircle(ObjectManager.Player.Position, _e.Range, Eran.Color);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, 425, Eran.Color);
             }
             if (Eaaran.Active)
             {
-                Render.Circle.DrawCircle(ObjectManager.Player.Position, _e.Range + Orbwalking.GetRealAutoAttackRange(ObjectManager.Player), Eaaran.Color);
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, 425 + Orbwalking.GetRealAutoAttackRange(ObjectManager.Player), Eaaran.Color);
             }
             if (Rran.Active)
             {
