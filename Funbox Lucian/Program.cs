@@ -85,61 +85,64 @@ namespace Lucian
         private static void Game_OnUpdate(EventArgs args)
         {
             Emode();
-            var ch = HeroManager.Enemies.Where(hero => hero.IsValidTarget(1150)).Where(hero => hero.Distance(ObjectManager.Player) > 675).FirstOrDefault();
-            var thc = HeroManager.Enemies.Where(hero => hero.IsValidTarget(1150)).Where(hero => hero.Distance(ObjectManager.Player) > 675).FirstOrDefault(hero => _config.Item("autohar" + hero.ChampionName).GetValue<bool>());
-            var manh = _config.Item("manah").GetValue<Slider>().Value;
             var cerha = _config.Item("qexharhero").GetValue<bool>();
             if (cerha)
             {
+                var manh = _config.Item("manah").GetValue<Slider>().Value;
                 if (_q.IsReady() && (ObjectManager.Player.Mana/ObjectManager.Player.MaxMana)*100 > manh && (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit))
                 {
+                    var thc = HeroManager.Enemies.Where(hero => hero.IsValidTarget(1150)).Where(hero => hero.Distance(ObjectManager.Player) > 675).FirstOrDefault(hero => _config.Item("autohar" + hero.ChampionName).GetValue<bool>());
                     qexcast(thc);
                 }
             }
             else
             {
+                var manh = _config.Item("manah").GetValue<Slider>().Value;
                 if (_q.IsReady() && (ObjectManager.Player.Mana/ObjectManager.Player.MaxMana)*100 > manh && (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LaneClear || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed || _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.LastHit))
                 {
+                    var ch = HeroManager.Enemies.Where(hero => hero.IsValidTarget(1150)).Where(hero => hero.Distance(ObjectManager.Player) > 675).FirstOrDefault();
                     qexcast(ch);
                 }
             }
-            var tcc = HeroManager.Enemies.Where(hero => hero.IsValidTarget(1150)).Where(hero => hero.Distance(ObjectManager.Player) > 675).FirstOrDefault(hero => _config.Item("autocom" + hero.ChampionName).GetValue<bool>());
-            var manc = _config.Item("manac").GetValue<Slider>().Value;
-            var cerco = _config.Item("qexcomhero").GetValue<bool>();
             var qc = _config.Item("qexcom").GetValue<bool>();
             if (qc)
             {
+                var cerco = _config.Item("qexcomhero").GetValue<bool>();
                 if (cerco)
                 {
+                    var manc = _config.Item("manac").GetValue<Slider>().Value;
                     if (_q.IsReady() && (ObjectManager.Player.Mana/ObjectManager.Player.MaxMana)*100 > manc && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
                     {
+                        var tcc = HeroManager.Enemies.Where(hero => hero.IsValidTarget(1150)).Where(hero => hero.Distance(ObjectManager.Player) > 675).FirstOrDefault(hero => _config.Item("autocom" + hero.ChampionName).GetValue<bool>());
                         qexcast(tcc);
                     }
                 }
                 else
                 {
+                    var manc = _config.Item("manac").GetValue<Slider>().Value;
                     if (_q.IsReady() && (ObjectManager.Player.Mana/ObjectManager.Player.MaxMana)*100 > manc && _orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
                     {
+                        var ch = HeroManager.Enemies.Where(hero => hero.IsValidTarget(1150)).Where(hero => hero.Distance(ObjectManager.Player) > 675).FirstOrDefault();
                         qexcast(ch);
                     }
                 }
             }
             var qk = _config.Item("qkil").GetValue<bool>();
-            var qke = _config.Item("qexkil").GetValue<bool>();
-            var kqe = HeroManager.Enemies.Where(hero => hero.IsValidTarget(1150)).Where(hero => hero.Distance(ObjectManager.Player) > 675).FirstOrDefault(hero => ObjectManager.Player.GetSpellDamage(hero, SpellSlot.Q) >= hero.Health);
-            var kq = HeroManager.Enemies.Where(hero => hero.IsValidTarget(675)).FirstOrDefault(hero => ObjectManager.Player.GetSpellDamage(hero, SpellSlot.Q) >= hero.Health);
             if (qk && _q.IsReady())
             {
+                var kq = HeroManager.Enemies.Where(hero => hero.IsValidTarget(675)).FirstOrDefault(hero => ObjectManager.Player.GetSpellDamage(hero, SpellSlot.Q) >= hero.Health);
                 _q.CastOnUnit(kq);
             }
+            var qke = _config.Item("qexkil").GetValue<bool>();
             if (qke && _q.IsReady())
             {
+                var kqe = HeroManager.Enemies.Where(hero => hero.IsValidTarget(1150)).Where(hero => hero.Distance(ObjectManager.Player) > 675).FirstOrDefault(hero => ObjectManager.Player.GetSpellDamage(hero, SpellSlot.Q) >= hero.Health);
                 qexcast(kqe);
             }
             var wk = _config.Item("wkil").GetValue<bool>();
-            var kw = HeroManager.Enemies.Where(hero => hero.IsValidTarget(1000)).FirstOrDefault(hero => ObjectManager.Player.GetSpellDamage(hero, SpellSlot.W) >= hero.Health);
             if (wk && _w.IsReady())
             {
+                var kw = HeroManager.Enemies.Where(hero => hero.IsValidTarget(1000)).FirstOrDefault(hero => ObjectManager.Player.GetSpellDamage(hero, SpellSlot.W) >= hero.Health);
                 var WPred = _w2.GetPrediction(kw);
                 if (WPred.Hitchance >= HitChance.High)
                 {
@@ -150,16 +153,13 @@ namespace Lucian
         private static void Orbwalking_AfterAttack(AttackableUnit unit, AttackableUnit target)
         {
             var enemy = TargetSelector.GetTarget(700, TargetSelector.DamageType.Physical);
-            var obj = (Obj_AI_Base) target;
-            var quse = _config.Item("qcom").GetValue<bool>();
-            var wuse = _config.Item("wcom").GetValue<bool>();
-            var botuse = _config.Item("Botrk").GetValue<bool>();
-            var cutuse = _config.Item("Cutlass").GetValue<bool>();
-            var youuse = _config.Item("Youmuus").GetValue<bool>();
-            var EMode =_config.Item("emod").GetValue<StringList>().SelectedIndex;
-            var pos = Geometry.CircleCircleIntersection(ObjectManager.Player.ServerPosition.To2D(), Prediction.GetPrediction(obj, 0.25f).UnitPosition.To2D(), 425, Orbwalking.GetRealAutoAttackRange(obj));
             if (enemy.IsValidTarget())
             {
+                var quse = _config.Item("qcom").GetValue<bool>();
+                var wuse = _config.Item("wcom").GetValue<bool>();
+                var botuse = _config.Item("Botrk").GetValue<bool>();
+                var cutuse = _config.Item("Cutlass").GetValue<bool>();
+                var youuse = _config.Item("Youmuus").GetValue<bool>();
                 if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Mixed)
                 {
                     if (quse)
@@ -179,6 +179,9 @@ namespace Lucian
                 }
                 if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
                 {
+                    var EMode =_config.Item("emod").GetValue<StringList>().SelectedIndex;
+                    var obj = (Obj_AI_Base) target;
+                    var pos = Geometry.CircleCircleIntersection(ObjectManager.Player.ServerPosition.To2D(), Prediction.GetPrediction(obj, 0.25f).UnitPosition.To2D(), 425, Orbwalking.GetRealAutoAttackRange(obj));
                     switch (EMode)
                     {
                         case 0:
