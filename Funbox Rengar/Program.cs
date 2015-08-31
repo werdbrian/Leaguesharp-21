@@ -27,7 +27,7 @@ private static void Game_OnGameLoad(EventArgs args)
     {
         return;
     }
-    _e.SetSkillshot(0.25f, 70, 1500, true, SkillshotType.SkillshotLine);
+    _e.SetSkillshot(0.25f, 90, 1500, true, SkillshotType.SkillshotLine);
     _config = new Menu("Rengar", "Rengar", true);
     _orbwalker = new Orbwalking.Orbwalker(_config.SubMenu("Orbwalking"));
     var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
