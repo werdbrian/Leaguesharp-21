@@ -33,6 +33,7 @@ private static void Game_OnGameLoad(EventArgs args)
     var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
     TargetSelector.AddToMenu(targetSelectorMenu);
     _config.AddSubMenu(targetSelectorMenu);
+    _config.AddItem(new MenuItem("em", "E Mode").SetValue(false));
     _config.AddItem(new MenuItem("ah", "Auto Heal").SetValue(new Slider(33, 100, 0)));
     _config.AddItem(new MenuItem("eq", "E in Q Mode").SetValue(true));
     _config.AddToMainMenu();
@@ -126,34 +127,63 @@ private static void Game_OnUpdate(EventArgs args)
         {
             if ((ObjectManager.Player.Health/ObjectManager.Player.MaxHealth)*100 > _config.Item("ah").GetValue<Slider>().Value)
             {
-                if (targett.IsValidTarget(350))
+                if (_config.Item("em").GetValue<bool>())
                 {
-                    if (ObjectManager.Player.GetSpellDamage(targett, SpellSlot.W) >= targett.Health)
+                    if (targett.IsValidTarget(350))
                     {
-                        _w.Cast();
+                        if (_e.IsReady())
+                        {
+                            _e.Cast(targett);
+                        }
                     }
                     else
                     {
-                        if (targett.Distance(ObjectManager.Player.Position) < 230)
+                        if (!ObjectManager.Player.HasBuff("rengarpassivebuff"))
                         {
-                            if (_q.IsReady())
+                            if (target.IsValidTarget(950))
                             {
-                                _q.Cast();
+                                if (_e.IsReady())
+                                {
+                                    _e.Cast(target);
+                                }
                             }
                         }
                     }
                 }
                 else
                 {
-                    if (!ObjectManager.Player.HasBuff("rengarpassivebuff"))
+                    if (targett.IsValidTarget(350))
                     {
-                        if (target.IsValidTarget(950))
+                        if (ObjectManager.Player.GetSpellDamage(targett, SpellSlot.W) >= targett.Health)
                         {
-                            if (target.Distance(ObjectManager.Player.Position) > 300)
+                            _w.Cast();
+                        }
+                        else
+                        {
+                            if (targett.Distance(ObjectManager.Player.Position) < 230)
                             {
-                                if (_e.IsReady())
+                                if (_q.IsReady())
                                 {
-                                    _e.Cast(target);
+                                    _q.Cast();
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (_config.Item("eq").GetValue<bool>())
+                        {
+                            if (!ObjectManager.Player.HasBuff("rengarpassivebuff"))
+                            {
+                                if (target.IsValidTarget(950))
+                                {
+                                    if (target.Distance(ObjectManager.Player.Position) > 300)
+                                    {
+                                        if (_e.IsReady())
+                                        {
+                                            _e.Cast(target);
+                                        }
+                                    }
                                 }
                             }
                         }
