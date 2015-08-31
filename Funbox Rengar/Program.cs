@@ -1,6 +1,6 @@
 using System;
-using SharpDX;
 using LeagueSharp;
+using System.Drawing;
 using LeagueSharp.Common;
 namespace Rengar
 {
@@ -8,10 +8,11 @@ public class Program
 {
 #region
 private static Menu _config;
+private static int _lastTick;
 private static Orbwalking.Orbwalker _orbwalker;
-private static Spell _q = new Spell(SpellSlot.Q);
-private static Spell _w = new Spell(SpellSlot.W);
-private static Spell _e = new Spell(SpellSlot.E);
+private static Spell _q = new Spell(SpellSlot.Q, 230);
+private static Spell _w = new Spell(SpellSlot.W, 350);
+private static Spell _e = new Spell(SpellSlot.E, 950);
 #endregion
 #region
 private static void Main(string[] args)
@@ -27,23 +28,27 @@ private static void Game_OnGameLoad(EventArgs args)
         return;
     }
     _e.SetSkillshot(0.25f, 70, 1500, true, SkillshotType.SkillshotLine);
-    _e.MinHitChance = HitChance.Medium;
     _config = new Menu("Rengar", "Rengar", true);
     _orbwalker = new Orbwalking.Orbwalker(_config.SubMenu("Orbwalking"));
     var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
     TargetSelector.AddToMenu(targetSelectorMenu);
     _config.AddSubMenu(targetSelectorMenu);
-    _config.AddItem(new MenuItem("em", "E Mode").SetValue(false));
-    _config.AddItem(new MenuItem("ah", "Auto Heal").SetValue(new Slider(33, 100, 0)));
-    _config.AddItem(new MenuItem("eq", "E in Q Mode").SetValue(true));
+    _config.SubMenu("Combo Mode").SubMenu("Switch Key").AddItem(new MenuItem("cs", "Combo switch Key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+    _config.SubMenu("Combo Mode").AddItem(new MenuItem("em", "E Mode").SetValue(false));
+    _config.SubMenu("Q Mode Options").AddItem(new MenuItem("eq", "E in Q Mode").SetValue(true));
+    _config.SubMenu("AutoHeal").AddItem(new MenuItem("ah", "Auto Heal").SetValue(new Slider(33, 100, 0)));
+    _config.SubMenu("Drawings").AddItem(new MenuItem("cd", "Combo Mode Text").SetValue(true));
+    _config.SubMenu("Drawings").AddItem(new MenuItem("dt", "Active Enemy").SetValue(new Circle(true, Color.GreenYellow)));
     _config.AddToMainMenu();
     Game.OnUpdate += Game_OnUpdate;
     Obj_AI_Base.OnProcessSpellCast += oncast;
+    Drawing.OnDraw += Drawing_OnDraw;
 }
 #endregion
 #region
 private static void Game_OnUpdate(EventArgs args)
 {
+    Comboswitch();
     var target = TargetSelector.GetTarget(1500, TargetSelector.DamageType.Physical);
     var targett = TargetSelector.GetTarget(350, TargetSelector.DamageType.Physical);
     if (ObjectManager.Player.HasBuff("rengarpassivebuff"))
@@ -98,7 +103,11 @@ private static void Game_OnUpdate(EventArgs args)
                     }
                     if (_e.IsReady())
                     {
-                        _e.Cast(targett);
+                        var EPred = _e.GetPrediction(targett);
+                        if (EPred.Hitchance >= HitChance.High)
+                        {
+                            _e.Cast(EPred.CastPosition);
+                        }
                     }
                 }
             }
@@ -117,7 +126,11 @@ private static void Game_OnUpdate(EventArgs args)
                     {
                         if (_e.IsReady())
                         {
-                            _e.Cast(target);
+                            var EPred = _e.GetPrediction(target);
+                            if (EPred.Hitchance >= HitChance.High)
+                            {
+                                _e.Cast(EPred.CastPosition);
+                            }
                         }
                     }
                 }
@@ -133,7 +146,11 @@ private static void Game_OnUpdate(EventArgs args)
                     {
                         if (_e.IsReady())
                         {
-                            _e.Cast(targett);
+                            var EPred = _e.GetPrediction(targett);
+                            if (EPred.Hitchance >= HitChance.High)
+                            {
+                                _e.Cast(EPred.CastPosition);
+                            }
                         }
                     }
                     else
@@ -144,7 +161,11 @@ private static void Game_OnUpdate(EventArgs args)
                             {
                                 if (_e.IsReady())
                                 {
-                                    _e.Cast(target);
+                                    var EPred = _e.GetPrediction(target);
+                                    if (EPred.Hitchance >= HitChance.High)
+                                    {
+                                        _e.Cast(EPred.CastPosition);
+                                    }
                                 }
                             }
                         }
@@ -181,7 +202,11 @@ private static void Game_OnUpdate(EventArgs args)
                                     {
                                         if (_e.IsReady())
                                         {
-                                            _e.Cast(target);
+                                            var EPred = _e.GetPrediction(target);
+                                            if (EPred.Hitchance >= HitChance.High)
+                                            {
+                                                _e.Cast(EPred.CastPosition);
+                                            }
                                         }
                                     }
                                 }
@@ -209,6 +234,58 @@ private static void oncast(Obj_AI_Base sender, GameObjectProcessSpellCastEventAr
     if (ObjectManager.Player.HasBuff("rengarqbase") || ObjectManager.Player.HasBuff("rengarqemp"))
     {
         Orbwalking.ResetAutoAttackTimer();
+    }
+}
+#endregion
+#region
+private static void Drawing_OnDraw(EventArgs args)
+{
+    var t = TargetSelector.GetTarget(1500, TargetSelector.DamageType.Physical);
+    var tt = TargetSelector.GetTarget(350, TargetSelector.DamageType.Physical);
+    if (_config.Item("dt").GetValue<Circle>().Active)
+    {
+        if (tt.IsValidTarget(350))
+        {
+            Render.Circle.DrawCircle(tt.Position, 115f, _config.Item("dt").GetValue<Circle>().Color, 1);
+        }
+        else
+        {
+            if (t.IsValidTarget(1500))
+            {
+                Render.Circle.DrawCircle(t.Position, 115f, _config.Item("dt").GetValue<Circle>().Color, 1);
+            }
+        }
+    }
+    if (_config.Item("cd").GetValue<bool>())
+    {
+        if (_config.Item("em").GetValue<bool>())
+        {
+            Drawing.DrawText(Drawing.WorldToScreen(ObjectManager.Player.Position)[0], Drawing.WorldToScreen(ObjectManager.Player.Position)[1], Color.White, "E");
+        }
+        else
+        {
+            Drawing.DrawText(Drawing.WorldToScreen(ObjectManager.Player.Position)[0], Drawing.WorldToScreen(ObjectManager.Player.Position)[1], Color.White, "Q");
+        }
+    }
+}
+#endregion
+#region
+private static void Comboswitch()
+{
+    var lasttime = Environment.TickCount - _lastTick;
+    if (!_config.Item("cs").GetValue<KeyBind>().Active || lasttime <= Game.Ping)
+    {
+        return;
+    }
+    if (_config.Item("em").GetValue<bool>())
+    {
+        _config.Item("em").SetValue(false);
+        _lastTick = Environment.TickCount + 300;
+    }
+    else
+    {
+        _config.Item("em").SetValue(true);
+        _lastTick = Environment.TickCount + 300;
     }
 }
 #endregion
