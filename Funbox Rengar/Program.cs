@@ -87,18 +87,18 @@ private static void Game_OnUpdate(EventArgs args)
                 {
                     if (_q.IsReady())
                     {
-                        _q.Cast();
+                        _q.Cast(targett);
                     }
                 }
                 if (!ObjectManager.Player.HasBuff("rengarqbase") && !ObjectManager.Player.HasBuff("rengarqemp"))
                 {
                     if (_w.IsReady())
                     {
-                        _w.Cast();
+                        _w.Cast(targett);
                     }
                     if (_e.IsReady())
                     {
-                        _e.Cast(target);
+                        _e.Cast(targett);
                     }
                 }
             }
@@ -156,7 +156,7 @@ private static void Game_OnUpdate(EventArgs args)
                     {
                         if (ObjectManager.Player.GetSpellDamage(targett, SpellSlot.W) >= targett.Health)
                         {
-                            _w.Cast();
+                            _w.Cast(targett);
                         }
                         else
                         {
@@ -164,7 +164,7 @@ private static void Game_OnUpdate(EventArgs args)
                             {
                                 if (_q.IsReady())
                                 {
-                                    _q.Cast();
+                                    _q.Cast(targett);
                                 }
                             }
                         }
