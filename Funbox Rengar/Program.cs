@@ -36,6 +36,7 @@ private static void Game_OnGameLoad(EventArgs args)
     _config.SubMenu("Combo Mode").SubMenu("Switch Key").AddItem(new MenuItem("cs", "Combo switch Key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
     _config.SubMenu("Combo Mode").AddItem(new MenuItem("em", "E Mode").SetValue(false));
     _config.SubMenu("Q Mode Options").AddItem(new MenuItem("eq", "E in Q Mode").SetValue(true));
+    _config.SubMenu("Q Mode Options").AddItem(new MenuItem("aq", "Use WE after Q").SetValue(true));
     _config.SubMenu("AutoHeal").AddItem(new MenuItem("ah", "Auto Heal").SetValue(new Slider(33, 100, 0)));
     _config.SubMenu("Drawings").AddItem(new MenuItem("cd", "Combo Mode Text").SetValue(true));
     _config.SubMenu("Drawings").AddItem(new MenuItem("dt", "Active Enemy").SetValue(new Circle(true, Color.GreenYellow)));
@@ -165,7 +166,25 @@ private static void Combo()
                     _q.Cast(targett);
                 }
             }
-            if (!ObjectManager.Player.HasBuff("rengarqbase") && !ObjectManager.Player.HasBuff("rengarqemp"))
+            if (_config.Item("aq").GetValue<bool>())
+            {
+                if (!ObjectManager.Player.HasBuff("rengarqbase") && !ObjectManager.Player.HasBuff("rengarqemp"))
+                {
+                    if (_w.IsReady())
+                    {
+                        _w.Cast(targett);
+                    }
+                    if (_e.IsReady())
+                    {
+                        var EPred = _e.GetPrediction(targett);
+                        if (EPred.Hitchance >= HitChance.High)
+                        {
+                            _e.Cast(EPred.CastPosition);
+                        }
+                    }
+                }
+            }
+            else
             {
                 if (_w.IsReady())
                 {
