@@ -10,7 +10,7 @@ public class Program
 private static Menu _config;
 private static int _lastTick;
 private static Orbwalking.Orbwalker _orbwalker;
-private static Spell _q = new Spell(SpellSlot.Q, 250);
+private static Spell _q = new Spell(SpellSlot.Q, 240);
 private static Spell _w = new Spell(SpellSlot.W, 350);
 private static Spell _e = new Spell(SpellSlot.E, 950);
 private static SpellSlot _smite = ObjectManager.Player.GetSpellSlot("summonersmite");
