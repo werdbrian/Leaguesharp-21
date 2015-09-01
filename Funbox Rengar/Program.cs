@@ -37,13 +37,13 @@ private static void Game_OnGameLoad(EventArgs args)
     _config.SubMenu("Combo Mode").AddItem(new MenuItem("em", "E Mode").SetValue(false));
     _config.SubMenu("Q Mode Options").AddItem(new MenuItem("eq", "E in Q Mode").SetValue(true));
     _config.SubMenu("Q Mode Options").AddItem(new MenuItem("aq", "Use WE after Q").SetValue(true));
-    _config.SubMenu("AutoHeal").AddItem(new MenuItem("ah", "Auto Heal").SetValue(new Slider(33, 100, 0)));
-    _config.SubMenu("Drawings").AddItem(new MenuItem("cd", "Combo Mode Text").SetValue(true));
-    _config.SubMenu("Drawings").AddItem(new MenuItem("dt", "Active Enemy").SetValue(new Circle(true, Color.GreenYellow)));
     _config.SubMenu("LaneClear").AddItem(new MenuItem("ok", "Spells on killable minions").SetValue(true));
     _config.SubMenu("LaneClear").AddItem(new MenuItem("ql", "Q").SetValue(true));
     _config.SubMenu("LaneClear").AddItem(new MenuItem("wl", "W").SetValue(true));
     _config.SubMenu("LaneClear").AddItem(new MenuItem("el", "E").SetValue(true));
+    _config.SubMenu("AutoHeal").AddItem(new MenuItem("ah", "Auto Heal").SetValue(new Slider(33, 100, 0)));
+    _config.SubMenu("Drawings").AddItem(new MenuItem("cd", "Combo Mode Text").SetValue(true));
+    _config.SubMenu("Drawings").AddItem(new MenuItem("dt", "Active Enemy").SetValue(new Circle(true, Color.GreenYellow)));
     _config.AddToMainMenu();
     Game.OnUpdate += Game_OnUpdate;
     Obj_AI_Base.OnProcessSpellCast += oncast;
