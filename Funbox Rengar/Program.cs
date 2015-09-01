@@ -39,6 +39,10 @@ private static void Game_OnGameLoad(EventArgs args)
     _config.SubMenu("AutoHeal").AddItem(new MenuItem("ah", "Auto Heal").SetValue(new Slider(33, 100, 0)));
     _config.SubMenu("Drawings").AddItem(new MenuItem("cd", "Combo Mode Text").SetValue(true));
     _config.SubMenu("Drawings").AddItem(new MenuItem("dt", "Active Enemy").SetValue(new Circle(true, Color.GreenYellow)));
+    _config.SubMenu("LaneClear").AddItem(new MenuItem("ok", "Spells on killable minions").SetValue(true));
+    _config.SubMenu("LaneClear").AddItem(new MenuItem("ql", "Q").SetValue(true));
+    _config.SubMenu("LaneClear").AddItem(new MenuItem("wl", "W").SetValue(true));
+    _config.SubMenu("LaneClear").AddItem(new MenuItem("el", "E").SetValue(true));
     _config.AddToMainMenu();
     Game.OnUpdate += Game_OnUpdate;
     Obj_AI_Base.OnProcessSpellCast += oncast;
@@ -49,173 +53,15 @@ private static void Game_OnGameLoad(EventArgs args)
 private static void Game_OnUpdate(EventArgs args)
 {
     Comboswitch();
-    var target = TargetSelector.GetTarget(1500, TargetSelector.DamageType.Physical);
-    var targett = TargetSelector.GetTarget(350, TargetSelector.DamageType.Physical);
-    if (ObjectManager.Player.HasBuff("rengarpassivebuff"))
+    Auto();
+    switch (_orbwalker.ActiveMode)
     {
-        if (target.IsValidTarget(1500))
-        {
-            if (TargetSelector.GetPriority(target) == 2.5f)
-            {
-                TargetSelector.SetTarget(target);
-                if (!_config.Item("ForceFocusSelected").GetValue<bool>())
-                {
-                    _config.Item("ForceFocusSelected").SetValue(true);
-                }
-            }
-        }
-    }
-    else
-    {
-        if (_config.Item("ForceFocusSelected").GetValue<bool>())
-        {
-            _config.Item("ForceFocusSelected").SetValue(false);
-        }
-    }
-    if (ObjectManager.Player.Mana == 5)
-    {
-        if ((ObjectManager.Player.Health/ObjectManager.Player.MaxHealth)*100 <= _config.Item("ah").GetValue<Slider>().Value)
-        {
-            if (_w.IsReady())
-            {
-                _w.Cast();
-            }
-        }
-    }
-    if (_orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.Combo)
-    {
-        if (ObjectManager.Player.Mana < 5)
-        {
-            if (targett.IsValidTarget(350))
-            {
-                if (targett.Distance(ObjectManager.Player.Position) < 230)
-                {
-                    if (_q.IsReady())
-                    {
-                        _q.Cast(targett);
-                    }
-                }
-                if (!ObjectManager.Player.HasBuff("rengarqbase") && !ObjectManager.Player.HasBuff("rengarqemp"))
-                {
-                    if (_w.IsReady())
-                    {
-                        _w.Cast(targett);
-                    }
-                    if (_e.IsReady())
-                    {
-                        var EPred = _e.GetPrediction(targett);
-                        if (EPred.Hitchance >= HitChance.High)
-                        {
-                            _e.Cast(EPred.CastPosition);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if (target.IsValidTarget(950))
-                {
-                    if (ObjectManager.Player.HasBuff("rengarpassivebuff"))
-                    {
-                        if (_q.IsReady())
-                        {
-                            _q.Cast();
-                        }
-                    }
-                    else
-                    {
-                        if (_e.IsReady())
-                        {
-                            var EPred = _e.GetPrediction(target);
-                            if (EPred.Hitchance >= HitChance.High)
-                            {
-                                _e.Cast(EPred.CastPosition);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            if ((ObjectManager.Player.Health/ObjectManager.Player.MaxHealth)*100 > _config.Item("ah").GetValue<Slider>().Value)
-            {
-                if (_config.Item("em").GetValue<bool>())
-                {
-                    if (targett.IsValidTarget(350))
-                    {
-                        if (_e.IsReady())
-                        {
-                            var EPred = _e.GetPrediction(targett);
-                            if (EPred.Hitchance >= HitChance.High)
-                            {
-                                _e.Cast(EPred.CastPosition);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (!ObjectManager.Player.HasBuff("rengarpassivebuff"))
-                        {
-                            if (target.IsValidTarget(950))
-                            {
-                                if (_e.IsReady())
-                                {
-                                    var EPred = _e.GetPrediction(target);
-                                    if (EPred.Hitchance >= HitChance.High)
-                                    {
-                                        _e.Cast(EPred.CastPosition);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    if (targett.IsValidTarget(350))
-                    {
-                        if (ObjectManager.Player.GetSpellDamage(targett, SpellSlot.W) >= targett.Health)
-                        {
-                            _w.Cast(targett);
-                        }
-                        else
-                        {
-                            if (targett.Distance(ObjectManager.Player.Position) < 230)
-                            {
-                                if (_q.IsReady())
-                                {
-                                    _q.Cast(targett);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (_config.Item("eq").GetValue<bool>())
-                        {
-                            if (!ObjectManager.Player.HasBuff("rengarpassivebuff"))
-                            {
-                                if (target.IsValidTarget(950))
-                                {
-                                    if (target.Distance(ObjectManager.Player.Position) > 300)
-                                    {
-                                        if (_e.IsReady())
-                                        {
-                                            var EPred = _e.GetPrediction(target);
-                                            if (EPred.Hitchance >= HitChance.High)
-                                            {
-                                                _e.Cast(EPred.CastPosition);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        case Orbwalking.OrbwalkingMode.Combo:
+            Combo();
+        break;
+        case Orbwalking.OrbwalkingMode.LaneClear:
+            LaneClear();
+        break;
     }
 }
 #endregion
@@ -265,6 +111,258 @@ private static void Drawing_OnDraw(EventArgs args)
         else
         {
             Drawing.DrawText(Drawing.WorldToScreen(ObjectManager.Player.Position)[0], Drawing.WorldToScreen(ObjectManager.Player.Position)[1], Color.White, "Q");
+        }
+    }
+}
+#endregion
+#region
+private static void Auto()
+{
+    if (ObjectManager.Player.Mana == 5)
+    {
+        if ((ObjectManager.Player.Health/ObjectManager.Player.MaxHealth)*100 <= _config.Item("ah").GetValue<Slider>().Value)
+        {
+            if (_w.IsReady())
+            {
+                _w.Cast();
+            }
+        }
+    }
+    if (ObjectManager.Player.HasBuff("rengarpassivebuff"))
+    {
+        var target = TargetSelector.GetTarget(1500, TargetSelector.DamageType.Physical);
+        if (TargetSelector.GetPriority(target) == 2.5f)
+        {
+            TargetSelector.SetTarget(target);
+            if (!_config.Item("ForceFocusSelected").GetValue<bool>())
+            {
+                _config.Item("ForceFocusSelected").SetValue(true);
+            }
+        }
+    }
+    else
+    {
+        if (_config.Item("ForceFocusSelected").GetValue<bool>())
+        {
+            _config.Item("ForceFocusSelected").SetValue(false);
+        }
+    }
+}
+#endregion
+#region
+private static void Combo()
+{
+    var target = TargetSelector.GetTarget(1500, TargetSelector.DamageType.Physical);
+    var targett = TargetSelector.GetTarget(350, TargetSelector.DamageType.Physical);
+    if (ObjectManager.Player.Mana < 5)
+    {
+        if (targett.IsValidTarget(350))
+        {
+            if (targett.Distance(ObjectManager.Player.Position) < 230)
+            {
+                if (_q.IsReady())
+                {
+                    _q.Cast(targett);
+                }
+            }
+            if (!ObjectManager.Player.HasBuff("rengarqbase") && !ObjectManager.Player.HasBuff("rengarqemp"))
+            {
+                if (_w.IsReady())
+                {
+                    _w.Cast(targett);
+                }
+                if (_e.IsReady())
+                {
+                    var EPred = _e.GetPrediction(targett);
+                    if (EPred.Hitchance >= HitChance.High)
+                    {
+                        _e.Cast(EPred.CastPosition);
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (target.IsValidTarget(950))
+            {
+                if (ObjectManager.Player.HasBuff("rengarpassivebuff"))
+                {
+                    if (_q.IsReady())
+                    {
+                        _q.Cast();
+                    }
+                }
+                else
+                {
+                    if (_e.IsReady())
+                    {
+                        var EPred = _e.GetPrediction(target);
+                        if (EPred.Hitchance >= HitChance.High)
+                        {
+                            _e.Cast(EPred.CastPosition);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        if ((ObjectManager.Player.Health/ObjectManager.Player.MaxHealth)*100 > _config.Item("ah").GetValue<Slider>().Value)
+        {
+            if (_config.Item("em").GetValue<bool>())
+            {
+                if (targett.IsValidTarget(350))
+                {
+                    if (_e.IsReady())
+                    {
+                        var EPred = _e.GetPrediction(targett);
+                        if (EPred.Hitchance >= HitChance.High)
+                        {
+                            _e.Cast(EPred.CastPosition);
+                        }
+                    }
+                }
+                else
+                {
+                    if (!ObjectManager.Player.HasBuff("rengarpassivebuff"))
+                    {
+                        if (target.IsValidTarget(950))
+                        {
+                            if (_e.IsReady())
+                            {
+                                var EPred = _e.GetPrediction(target);
+                                if (EPred.Hitchance >= HitChance.High)
+                                {
+                                    _e.Cast(EPred.CastPosition);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (targett.IsValidTarget(350))
+                {
+                    if (targett.Distance(ObjectManager.Player.Position) < 230)
+                    {
+                        if (_q.IsReady())
+                        {
+                            _q.Cast(targett);
+                        }
+                    }
+                }
+                else
+                {
+                    if (_config.Item("eq").GetValue<bool>())
+                    {
+                        if (!ObjectManager.Player.HasBuff("rengarpassivebuff"))
+                        {
+                            if (target.IsValidTarget(950))
+                            {
+                                if (target.Distance(ObjectManager.Player.Position) > 300)
+                                {
+                                    if (_e.IsReady())
+                                    {
+                                        var EPred = _e.GetPrediction(target);
+                                        if (EPred.Hitchance >= HitChance.High)
+                                        {
+                                            _e.Cast(EPred.CastPosition);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+#endregion
+#region
+private static void LaneClear()
+{
+    if (ObjectManager.Player.Mana < 5)
+    {
+        var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 350, MinionTypes.All, MinionTeam.NotAlly);
+        if (minions != null)
+        {
+            foreach (var minion in minions)
+            {
+                if (_config.Item("ok").GetValue<bool>())
+                {
+                    if (_config.Item("ql").GetValue<bool>())
+                    {
+                        if (minion.Distance(ObjectManager.Player.Position) < 230)
+                        {
+                            if (_q.IsReady())
+                            {
+                                if (ObjectManager.Player.GetSpellDamage(minion, SpellSlot.Q) >= minion.Health)
+                                {
+                                    _q.Cast(minion);
+                                }
+                            }
+                        }
+                    }
+                    if (_config.Item("wl").GetValue<bool>())
+                    {
+                        if (_w.IsReady())
+                        {
+                            if (ObjectManager.Player.GetSpellDamage(minion, SpellSlot.W) >= minion.Health)
+                            {
+                                _w.Cast(minion);
+                            }
+                        }
+                    }
+                    if (_config.Item("el").GetValue<bool>())
+                    {
+                        if (_e.IsReady())
+                        {
+                            if (ObjectManager.Player.GetSpellDamage(minion, SpellSlot.E) >= minion.Health)
+                            {
+                                var EPred = _e.GetPrediction(minion);
+                                if (EPred.Hitchance >= HitChance.High)
+                                {
+                                    _e.Cast(EPred.CastPosition);
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (_config.Item("ql").GetValue<bool>())
+                    {
+                        if (minion.Distance(ObjectManager.Player.Position) < 230)
+                        {
+                            if (_q.IsReady())
+                            {
+                                _q.Cast(minion);
+                            }
+                        }
+                    }
+                    if (_config.Item("wl").GetValue<bool>())
+                    {
+                        if (_w.IsReady())
+                        {
+                            _w.Cast(minion);
+                        }
+                    }
+                    if (_config.Item("el").GetValue<bool>())
+                    {
+                        if (_e.IsReady())
+                        {
+                            var EPred = _e.GetPrediction(minion);
+                            if (EPred.Hitchance >= HitChance.High)
+                            {
+                                _e.Cast(EPred.CastPosition);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
