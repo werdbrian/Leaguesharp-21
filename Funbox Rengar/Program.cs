@@ -170,55 +170,61 @@ private static void Combo()
 {
     var target = TargetSelector.GetTarget(1500, TargetSelector.DamageType.Physical);
     var targett = TargetSelector.GetTarget(350, TargetSelector.DamageType.Physical);
-    if (targett.IsValidTarget(350))
+    if (ObjectManager.Player.HasBuff("rengarpassivebuff"))
     {
-        if (Items.HasItem(3053) && Items.CanUseItem(3053))
+    }
+    else
+    {
+        if (targett.IsValidTarget(350))
         {
-            Items.UseItem(3053, targett);
-        }
-        if (Items.HasItem(3074) && Items.CanUseItem(3074))
-        {
-            Items.UseItem(3074, targett);
-        }
-        if (Items.HasItem(3077) && Items.CanUseItem(3077))
-        {
-            Items.UseItem(3077, targett);
-        }
-        if (Items.HasItem(3142) && Items.CanUseItem(3142))
-        {
-            Items.UseItem(3142, targett);
-        }
-        if (Items.HasItem(3143) && Items.CanUseItem(3143))
-        {
-            Items.UseItem(3143, targett);
-        }
-        if (Items.HasItem(3144) && Items.CanUseItem(3144))
-        {
-            Items.UseItem(3144, targett);
-        }
-        if (Items.HasItem(3153) && Items.CanUseItem(3153))
-        {
-            Items.UseItem(3153, targett);
-        }
-        if (_smite != SpellSlot.Unknown)
-        {
-            if (ObjectManager.Player.Spellbook.CanUseSpell(_smite) == SpellState.Ready)
+            if (Items.HasItem(3053) && Items.CanUseItem(3053))
             {
-                ObjectManager.Player.Spellbook.CastSpell(_smite, targett);
+                Items.UseItem(3053, targett);
             }
-        }
-        if (_smitee != SpellSlot.Unknown)
-        {
-            if (ObjectManager.Player.Spellbook.CanUseSpell(_smitee) == SpellState.Ready)
+            if (Items.HasItem(3074) && Items.CanUseItem(3074))
             {
-                ObjectManager.Player.Spellbook.CastSpell(_smitee, targett);
+                Items.UseItem(3074, targett);
             }
-        }
-        if (_smiteee != SpellSlot.Unknown)
-        {
-            if (ObjectManager.Player.Spellbook.CanUseSpell(_smiteee) == SpellState.Ready)
+            if (Items.HasItem(3077) && Items.CanUseItem(3077))
             {
-                ObjectManager.Player.Spellbook.CastSpell(_smiteee, targett);
+                Items.UseItem(3077, targett);
+            }
+            if (Items.HasItem(3142) && Items.CanUseItem(3142))
+            {
+                Items.UseItem(3142, targett);
+            }
+            if (Items.HasItem(3143) && Items.CanUseItem(3143))
+            {
+                Items.UseItem(3143, targett);
+            }
+            if (Items.HasItem(3144) && Items.CanUseItem(3144))
+            {
+                Items.UseItem(3144, targett);
+            }
+            if (Items.HasItem(3153) && Items.CanUseItem(3153))
+            {
+                Items.UseItem(3153, targett);
+            }
+            if (_smite != SpellSlot.Unknown)
+            {
+                if (ObjectManager.Player.Spellbook.CanUseSpell(_smite) == SpellState.Ready)
+                {
+                    ObjectManager.Player.Spellbook.CastSpell(_smite, targett);
+                }
+            }
+            if (_smitee != SpellSlot.Unknown)
+            {
+                if (ObjectManager.Player.Spellbook.CanUseSpell(_smitee) == SpellState.Ready)
+                {
+                    ObjectManager.Player.Spellbook.CastSpell(_smitee, targett);
+                }
+            }
+            if (_smiteee != SpellSlot.Unknown)
+            {
+                if (ObjectManager.Player.Spellbook.CanUseSpell(_smiteee) == SpellState.Ready)
+                {
+                    ObjectManager.Player.Spellbook.CastSpell(_smiteee, targett);
+                }
             }
         }
     }
