@@ -10,9 +10,12 @@ public class Program
 private static Menu _config;
 private static int _lastTick;
 private static Orbwalking.Orbwalker _orbwalker;
-private static Spell _q = new Spell(SpellSlot.Q, 230);
+private static Spell _q = new Spell(SpellSlot.Q, 250);
 private static Spell _w = new Spell(SpellSlot.W, 350);
 private static Spell _e = new Spell(SpellSlot.E, 950);
+private static SpellSlot _smite = ObjectManager.Player.GetSpellSlot("summonersmite");
+private static SpellSlot _smitee = ObjectManager.Player.GetSpellSlot("s5_summonersmiteduel");
+private static SpellSlot _smiteee = ObjectManager.Player.GetSpellSlot("s5_summonersmiteplayerganker");
 #endregion
 #region
 private static void Main(string[] args)
@@ -33,17 +36,21 @@ private static void Game_OnGameLoad(EventArgs args)
     var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
     TargetSelector.AddToMenu(targetSelectorMenu);
     _config.AddSubMenu(targetSelectorMenu);
-    _config.SubMenu("Combo Mode").SubMenu("Switch Key").AddItem(new MenuItem("cs", "Combo switch Key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
-    _config.SubMenu("Combo Mode").AddItem(new MenuItem("em", "E Mode").SetValue(false));
-    _config.SubMenu("AutoHeal").AddItem(new MenuItem("ah", "Auto Heal").SetValue(new Slider(33, 100, 0)));
-    _config.SubMenu("Q Mode Options").AddItem(new MenuItem("eq", "E in Q Mode").SetValue(true));
-    _config.SubMenu("Q Mode Options").AddItem(new MenuItem("aq", "Use WE after Q").SetValue(true));
-    _config.SubMenu("LaneClear").AddItem(new MenuItem("ok", "Spells on killable minions").SetValue(true));
-    _config.SubMenu("LaneClear").AddItem(new MenuItem("ql", "Q").SetValue(true));
-    _config.SubMenu("LaneClear").AddItem(new MenuItem("wl", "W").SetValue(true));
-    _config.SubMenu("LaneClear").AddItem(new MenuItem("el", "E").SetValue(true));
-    _config.SubMenu("Drawings").AddItem(new MenuItem("cd", "Combo Mode Text").SetValue(true));
-    _config.SubMenu("Drawings").AddItem(new MenuItem("dt", "Active Enemy").SetValue(new Circle(true, Color.GreenYellow)));
+    _config.SubMenu("Rengar").SubMenu("Combo Mode").SubMenu("Switch Key").AddItem(new MenuItem("cs", "Combo switch Key").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
+    _config.SubMenu("Rengar").SubMenu("Combo Mode").AddItem(new MenuItem("em", "E Mode").SetValue(false));
+    _config.SubMenu("Rengar").SubMenu("Orb Mode").SubMenu("Switch Key").AddItem(new MenuItem("os", "Orb switch Key").SetValue(new KeyBind("U".ToCharArray()[0], KeyBindType.Press)));
+    _config.SubMenu("Rengar").SubMenu("Orb Mode").AddItem(new MenuItem("om", "Oneshot Mode").SetValue(false));
+    _config.SubMenu("Rengar").SubMenu("Combo").AddItem(new MenuItem("eq", "E in Q Mode").SetValue(true));
+    _config.SubMenu("Rengar").SubMenu("Combo").AddItem(new MenuItem("aq", "Use WE after Q").SetValue(true));
+    _config.SubMenu("Rengar").SubMenu("Combo").AddItem(new MenuItem("wkb", "W 5 ferocity if killable").SetValue(true));
+    _config.SubMenu("Rengar").SubMenu("AutoHeal").AddItem(new MenuItem("ah", "Auto Heal").SetValue(new Slider(33, 100, 0)));
+    _config.SubMenu("Rengar").SubMenu("LaneClear").AddItem(new MenuItem("ok", "Spells on killable minions").SetValue(true));
+    _config.SubMenu("Rengar").SubMenu("LaneClear").AddItem(new MenuItem("ql", "Q").SetValue(true));
+    _config.SubMenu("Rengar").SubMenu("LaneClear").AddItem(new MenuItem("wl", "W").SetValue(true));
+    _config.SubMenu("Rengar").SubMenu("LaneClear").AddItem(new MenuItem("el", "E").SetValue(true));
+    _config.SubMenu("Rengar").SubMenu("Drawings").AddItem(new MenuItem("cd", "Combo Mode Text").SetValue(true));
+    _config.SubMenu("Rengar").SubMenu("Drawings").AddItem(new MenuItem("od", "Orb Mode Text").SetValue(true));
+    _config.SubMenu("Rengar").SubMenu("Drawings").AddItem(new MenuItem("dt", "Active Enemy").SetValue(new Circle(true, Color.GreenYellow)));
     _config.AddToMainMenu();
     Game.OnUpdate += Game_OnUpdate;
     Obj_AI_Base.OnProcessSpellCast += oncast;
@@ -54,6 +61,7 @@ private static void Game_OnGameLoad(EventArgs args)
 private static void Game_OnUpdate(EventArgs args)
 {
     Comboswitch();
+    Orbswitch();
     Auto();
     switch (_orbwalker.ActiveMode)
     {
@@ -75,10 +83,6 @@ private static void oncast(Obj_AI_Base sender, GameObjectProcessSpellCastEventAr
         return;
     }
     if (spell.Name.ToLower().Contains("rengarq") || spell.Name.ToLower().Contains("rengare"))
-    {
-        Orbwalking.ResetAutoAttackTimer();
-    }
-    if (ObjectManager.Player.HasBuff("rengarqbase") || ObjectManager.Player.HasBuff("rengarqemp"))
     {
         Orbwalking.ResetAutoAttackTimer();
     }
@@ -107,11 +111,22 @@ private static void Drawing_OnDraw(EventArgs args)
     {
         if (_config.Item("em").GetValue<bool>())
         {
-            Drawing.DrawText(Drawing.WorldToScreen(ObjectManager.Player.Position)[0], Drawing.WorldToScreen(ObjectManager.Player.Position)[1], Color.White, "E");
+            Drawing.DrawText(Drawing.WorldToScreen(ObjectManager.Player.Position)[0] - 40, Drawing.WorldToScreen(ObjectManager.Player.Position)[1] - 15, Color.White, "Combo Mode: E");
         }
         else
         {
-            Drawing.DrawText(Drawing.WorldToScreen(ObjectManager.Player.Position)[0], Drawing.WorldToScreen(ObjectManager.Player.Position)[1], Color.White, "Q");
+            Drawing.DrawText(Drawing.WorldToScreen(ObjectManager.Player.Position)[0] - 40, Drawing.WorldToScreen(ObjectManager.Player.Position)[1] - 15, Color.White, "Combo Mode: Q");
+        }
+    }
+    if (_config.Item("od").GetValue<bool>())
+    {
+        if (_config.Item("om").GetValue<bool>())
+        {
+            Drawing.DrawText(Drawing.WorldToScreen(ObjectManager.Player.Position)[0] - 40, Drawing.WorldToScreen(ObjectManager.Player.Position)[1], Color.White, "Orb Mode: Oneshot");
+        }
+        else
+        {
+            Drawing.DrawText(Drawing.WorldToScreen(ObjectManager.Player.Position)[0] - 40, Drawing.WorldToScreen(ObjectManager.Player.Position)[1], Color.White, "Orb Mode: Mixed");
         }
     }
 }
@@ -155,15 +170,82 @@ private static void Combo()
 {
     var target = TargetSelector.GetTarget(1500, TargetSelector.DamageType.Physical);
     var targett = TargetSelector.GetTarget(350, TargetSelector.DamageType.Physical);
+    if (targett.IsValidTarget(350))
+    {
+        if (Items.HasItem(3053) && Items.CanUseItem(3053))
+        {
+            Items.UseItem(3053, targett);
+        }
+        if (Items.HasItem(3074) && Items.CanUseItem(3074))
+        {
+            Items.UseItem(3074, targett);
+        }
+        if (Items.HasItem(3077) && Items.CanUseItem(3077))
+        {
+            Items.UseItem(3077, targett);
+        }
+        if (Items.HasItem(3142) && Items.CanUseItem(3142))
+        {
+            Items.UseItem(3142, targett);
+        }
+        if (Items.HasItem(3143) && Items.CanUseItem(3143))
+        {
+            Items.UseItem(3143, targett);
+        }
+        if (Items.HasItem(3144) && Items.CanUseItem(3144))
+        {
+            Items.UseItem(3144, targett);
+        }
+        if (Items.HasItem(3153) && Items.CanUseItem(3153))
+        {
+            Items.UseItem(3153, targett);
+        }
+        if (_smite != SpellSlot.Unknown)
+        {
+            if (ObjectManager.Player.Spellbook.CanUseSpell(_smite) == SpellState.Ready)
+            {
+                ObjectManager.Player.Spellbook.CastSpell(_smite, targett);
+            }
+        }
+        if (_smitee != SpellSlot.Unknown)
+        {
+            if (ObjectManager.Player.Spellbook.CanUseSpell(_smitee) == SpellState.Ready)
+            {
+                ObjectManager.Player.Spellbook.CastSpell(_smitee, targett);
+            }
+        }
+        if (_smiteee != SpellSlot.Unknown)
+        {
+            if (ObjectManager.Player.Spellbook.CanUseSpell(_smiteee) == SpellState.Ready)
+            {
+                ObjectManager.Player.Spellbook.CastSpell(_smiteee, targett);
+            }
+        }
+    }
     if (ObjectManager.Player.Mana < 5)
     {
         if (targett.IsValidTarget(350))
         {
-            if (targett.Distance(ObjectManager.Player.Position) < 230)
+            if (_q.IsReady())
             {
-                if (_q.IsReady())
+                _q.Cast();
+            }
+            if (ObjectManager.Player.HasBuff("rengarqbase"))
+            {
+                Orbwalking.ResetAutoAttackTimer();
+            }
+            if (_config.Item("om").GetValue<bool>())
+            {
+                if (targett.Distance(ObjectManager.Player) < Orbwalking.GetRealAutoAttackRange(ObjectManager.Player) + 100)
                 {
-                    _q.Cast(targett);
+                    ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, targett);
+                }
+            }
+            else
+            {
+                if ((_w.IsReady() || _e.IsReady()) && targett.Distance(ObjectManager.Player) < Orbwalking.GetRealAutoAttackRange(ObjectManager.Player) + 100)
+                {
+                    ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, targett);
                 }
             }
             if (_config.Item("aq").GetValue<bool>())
@@ -172,7 +254,7 @@ private static void Combo()
                 {
                     if (_w.IsReady())
                     {
-                        _w.Cast(targett);
+                        _w.Cast();
                     }
                     if (_e.IsReady())
                     {
@@ -182,13 +264,28 @@ private static void Combo()
                             _e.Cast(EPred.CastPosition);
                         }
                     }
+                    if (_config.Item("om").GetValue<bool>())
+                    {
+                        if (targett.Distance(ObjectManager.Player) < Orbwalking.GetRealAutoAttackRange(ObjectManager.Player) + 100)
+                        {
+                            ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, targett);
+                        }
+                    }
+                    else
+                    {
+                        if ((_w.IsReady() || _e.IsReady()) && targett.Distance(ObjectManager.Player) < Orbwalking.GetRealAutoAttackRange(ObjectManager.Player) + 100)
+                        {
+                            ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, targett);
+                        }
+                    }
+
                 }
             }
             else
             {
                 if (_w.IsReady())
                 {
-                    _w.Cast(targett);
+                    _w.Cast();
                 }
                 if (_e.IsReady())
                 {
@@ -196,6 +293,20 @@ private static void Combo()
                     if (EPred.Hitchance >= HitChance.High)
                     {
                         _e.Cast(EPred.CastPosition);
+                    }
+                }
+                if (_config.Item("om").GetValue<bool>())
+                {
+                    if (targett.Distance(ObjectManager.Player) < Orbwalking.GetRealAutoAttackRange(ObjectManager.Player) + 100)
+                    {
+                        ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, targett);
+                    }
+                }
+                else
+                {
+                    if ((_w.IsReady() || _e.IsReady()) && targett.Distance(ObjectManager.Player) < Orbwalking.GetRealAutoAttackRange(ObjectManager.Player) + 100)
+                    {
+                        ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, targett);
                     }
                 }
             }
@@ -241,6 +352,21 @@ private static void Combo()
                             _e.Cast(EPred.CastPosition);
                         }
                     }
+                    if (_config.Item("om").GetValue<bool>())
+                    {
+                        if (targett.Distance(ObjectManager.Player) < Orbwalking.GetRealAutoAttackRange(ObjectManager.Player) + 100)
+                        {
+                            ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, targett);
+                        }
+                    }
+                    else
+                    {
+                        if ((_w.IsReady() || _e.IsReady()) && targett.Distance(ObjectManager.Player) < Orbwalking.GetRealAutoAttackRange(ObjectManager.Player) + 100)
+                        {
+                            ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, targett);
+                        }
+                    }
+
                 }
                 else
                 {
@@ -264,11 +390,61 @@ private static void Combo()
             {
                 if (targett.IsValidTarget(350))
                 {
-                    if (targett.Distance(ObjectManager.Player.Position) < 230)
+                    if (_config.Item("wkb").GetValue<bool>())
+                    {
+                        if (ObjectManager.Player.GetSpellDamage(targett, SpellSlot.W) >= targett.Health)
+                        {
+                            _w.Cast();
+                        }
+                        else
+                        {
+                            if (_q.IsReady())
+                            {
+                                _q.Cast();
+                            }
+                        }
+                        if (ObjectManager.Player.HasBuff("rengarqemp"))
+                        {
+                            Orbwalking.ResetAutoAttackTimer();
+                        }
+                        if (_config.Item("om").GetValue<bool>())
+                        {
+                            if (targett.Distance(ObjectManager.Player) < Orbwalking.GetRealAutoAttackRange(ObjectManager.Player) + 100)
+                            {
+                                ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, targett);
+                            }
+                        }
+                        else
+                        {
+                            if ((_w.IsReady() || _e.IsReady()) && targett.Distance(ObjectManager.Player) < Orbwalking.GetRealAutoAttackRange(ObjectManager.Player) + 100)
+                            {
+                                ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, targett);
+                            }
+                        }
+                    }
+                    else
                     {
                         if (_q.IsReady())
                         {
-                            _q.Cast(targett);
+                            _q.Cast();
+                        }
+                        if (ObjectManager.Player.HasBuff("rengarqemp"))
+                        {
+                            Orbwalking.ResetAutoAttackTimer();
+                        }
+                        if (_config.Item("om").GetValue<bool>())
+                        {
+                            if (targett.Distance(ObjectManager.Player) < Orbwalking.GetRealAutoAttackRange(ObjectManager.Player) + 100)
+                            {
+                                ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, targett);
+                            }
+                        }
+                        else
+                        {
+                            if ((_w.IsReady() || _e.IsReady()) && targett.Distance(ObjectManager.Player) < Orbwalking.GetRealAutoAttackRange(ObjectManager.Player) + 100)
+                            {
+                                ObjectManager.Player.IssueOrder(GameObjectOrder.AttackUnit, targett);
+                            }
                         }
                     }
                 }
@@ -280,7 +456,7 @@ private static void Combo()
                         {
                             if (target.IsValidTarget(950))
                             {
-                                if (target.Distance(ObjectManager.Player.Position) > 300)
+                                if (target.Distance(ObjectManager.Player.Position) > 250)
                                 {
                                     if (_e.IsReady())
                                     {
@@ -305,39 +481,16 @@ private static void LaneClear()
 {
     if (ObjectManager.Player.Mana < 5)
     {
-        var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 350, MinionTypes.All, MinionTeam.NotAlly);
-        if (minions != null)
+        if (_e.IsReady())
         {
-            foreach (var minion in minions)
+            var eminions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 950, MinionTypes.All, MinionTeam.NotAlly);
+            if (eminions != null)
             {
                 if (_config.Item("ok").GetValue<bool>())
                 {
-                    if (_config.Item("ql").GetValue<bool>())
+                    foreach (var minion in eminions)
                     {
-                        if (minion.Distance(ObjectManager.Player.Position) < 230)
-                        {
-                            if (_q.IsReady())
-                            {
-                                if (ObjectManager.Player.GetSpellDamage(minion, SpellSlot.Q) >= minion.Health)
-                                {
-                                    _q.Cast(minion);
-                                }
-                            }
-                        }
-                    }
-                    if (_config.Item("wl").GetValue<bool>())
-                    {
-                        if (_w.IsReady())
-                        {
-                            if (ObjectManager.Player.GetSpellDamage(minion, SpellSlot.W) >= minion.Health)
-                            {
-                                _w.Cast(minion);
-                            }
-                        }
-                    }
-                    if (_config.Item("el").GetValue<bool>())
-                    {
-                        if (_e.IsReady())
+                        if (_config.Item("el").GetValue<bool>())
                         {
                             if (ObjectManager.Player.GetSpellDamage(minion, SpellSlot.E) >= minion.Health)
                             {
@@ -352,32 +505,52 @@ private static void LaneClear()
                 }
                 else
                 {
-                    if (_config.Item("ql").GetValue<bool>())
+                    foreach (var minion in eminions)
                     {
-                        if (minion.Distance(ObjectManager.Player.Position) < 230)
-                        {
-                            if (_q.IsReady())
-                            {
-                                _q.Cast(minion);
-                            }
-                        }
-                    }
-                    if (_config.Item("wl").GetValue<bool>())
-                    {
-                        if (_w.IsReady())
-                        {
-                            _w.Cast(minion);
-                        }
-                    }
-                    if (_config.Item("el").GetValue<bool>())
-                    {
-                        if (_e.IsReady())
+                        if (_config.Item("el").GetValue<bool>())
                         {
                             var EPred = _e.GetPrediction(minion);
                             if (EPred.Hitchance >= HitChance.High)
                             {
                                 _e.Cast(EPred.CastPosition);
                             }
+                        }
+                    }
+                }
+            }
+        }
+        var minions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 350, MinionTypes.All, MinionTeam.NotAlly);
+        if (minions != null)
+        {
+            foreach (var minion in minions)
+            {
+                if (_config.Item("ql").GetValue<bool>())
+                {
+                    if (_q.IsReady())
+                    {
+                        _q.Cast();
+                    }
+                }
+                if (_config.Item("ok").GetValue<bool>())
+                {
+                    if (_config.Item("wl").GetValue<bool>())
+                    {
+                        if (_w.IsReady())
+                        {
+                            if (ObjectManager.Player.GetSpellDamage(minion, SpellSlot.W) >= minion.Health)
+                            {
+                                _w.Cast();
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (_config.Item("wl").GetValue<bool>())
+                    {
+                        if (_w.IsReady())
+                        {
+                            _w.Cast();
                         }
                     }
                 }
@@ -402,6 +575,26 @@ private static void Comboswitch()
     else
     {
         _config.Item("em").SetValue(true);
+        _lastTick = Environment.TickCount + 300;
+    }
+}
+#endregion
+#region
+private static void Orbswitch()
+{
+    var lasttime = Environment.TickCount - _lastTick;
+    if (!_config.Item("os").GetValue<KeyBind>().Active || lasttime <= Game.Ping)
+    {
+        return;
+    }
+    if (_config.Item("om").GetValue<bool>())
+    {
+        _config.Item("om").SetValue(false);
+        _lastTick = Environment.TickCount + 300;
+    }
+    else
+    {
+        _config.Item("om").SetValue(true);
         _lastTick = Environment.TickCount + 300;
     }
 }
