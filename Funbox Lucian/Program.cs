@@ -128,7 +128,7 @@ namespace Lucian
             if (qk && _q.IsReady())
             {
                 var kq = HeroManager.Enemies.Where(hero => hero.IsValidTarget(675)).FirstOrDefault(hero => ObjectManager.Player.GetSpellDamage(hero, SpellSlot.Q) >= hero.Health);
-                _q.CastOnUnit(kq);
+                if (kq!=null) _q.CastOnUnit(kq);
             }
             var qke = _config.Item("qexkil").GetValue<bool>();
             if (qke && _q.IsReady())
@@ -359,7 +359,7 @@ namespace Lucian
         private static void Wuse()
         {
             var t = TargetSelector.GetTarget(700, TargetSelector.DamageType.Physical);
-            _w.Cast(t);
+            if (t!=null) _w.Cast(t);
         }
     }
 }
