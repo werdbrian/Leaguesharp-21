@@ -140,6 +140,7 @@ namespace Lucian
             if (wk && _w.IsReady())
             {
                 var kw = HeroManager.Enemies.Where(hero => hero.IsValidTarget(1000)).FirstOrDefault(hero => ObjectManager.Player.GetSpellDamage(hero, SpellSlot.W) >= hero.Health);
+                if (kw==null) return;
                 var WPred = _w2.GetPrediction(kw);
                 if (WPred.Hitchance >= HitChance.High)
                 {
