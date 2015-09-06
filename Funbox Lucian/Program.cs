@@ -358,7 +358,7 @@ namespace Lucian
         }
         private static void Wuse()
         {
-            var t = TargetSelector.GetTarget(700, TargetSelector.DamageType.Physical);
+            var t = TargetSelector.GetTarget(1500, TargetSelector.DamageType.Physical);
             if (t!=null) _w.Cast(t);
         }
     }
