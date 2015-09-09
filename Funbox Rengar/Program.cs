@@ -147,6 +147,7 @@ private static void Auto()
     if (ObjectManager.Player.HasBuff("rengarpassivebuff"))
     {
         var target = TargetSelector.GetTarget(1500, TargetSelector.DamageType.Physical);
+        if (target==null) return;
         if (TargetSelector.GetPriority(target) == 2.5f)
         {
             TargetSelector.SetTarget(target);
